@@ -1,0 +1,6 @@
+@GraphicsBackend_HostAddress = http://localhost:5115
+
+GET {{GraphicsBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
