@@ -20,10 +20,10 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetGraphic(int id)
+        public async Task<IActionResult> GetProjectGraphicByIdAsync(int id,CancellationToken cancellationToken)
         {
 
-            var graphic = await _context.ProjectGraphics.FirstOrDefaultAsync(_ => _.Id == id);
+            var graphic = await _context.ProjectGraphics.FindAsync(id,cancellationToken);
             if (graphic is not null)
             {
                 return Ok(graphic);
@@ -32,11 +32,11 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpGet("projects/{projectId}")]
-        public async Task<IActionResult> GetGraphicsByProjectId(string projectId)
+        public async Task<IActionResult> GetProjectGraphicsByProjectIdAsync(string projectId,CancellationToken cancellationToken)
         {
 
-            var graphics = await _context.ProjectGraphics.Where(g => g.ProjectId == projectId).ToListAsync();
-            if (graphics is not null)
+            var graphics = await _context.ProjectGraphics.Where(g => g.ProjectId == projectId).ToListAsync(cancellationToken);
+            if (graphics.Any())
             {
                 return Ok(graphics);
             }
@@ -45,7 +45,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddNewProjectGraphic([FromBody] ProjectGraphic graphic)
+        public async Task<IActionResult> AddProjectGraphicAsync([FromBody] ProjectGraphic graphic)
         {
             try
             {
@@ -64,18 +64,31 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPut("{graphicId}")]
-        public async Task<IActionResult> UpdateProjectGraphicById(int graphicId, [FromBody] ProjectGraphic graphic)
+        public async Task<IActionResult> UpdateProjectGraphicByIdAsync(int graphicId, [FromBody] ProjectGraphic graphic)
         {
             try
             {
-                var existingGraphic = _context.ProjectGraphics.FirstOrDefaultAsync(_ => _.Id == graphicId);
-                if (existingGraphic is null)
+                if (graphic == null || graphicId != graphic.Id)
+                {
+                    return BadRequest("Invalid graphic data.");
+                }
+
+                var existingGraphic = await _context.ProjectGraphics.FindAsync(graphicId);
+                if (existingGraphic == null)
                 {
                     return NotFound();
                 }
+
+                // Detach the existing entity to avoid tracking conflicts
+                _context.Entry(existingGraphic).State = EntityState.Detached;
+
+                // Attach and update the provided entity
                 _context.ProjectGraphics.Attach(graphic);
+                _context.Entry(graphic).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
                 await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString());
+
                 return Ok(graphic);
             }
             catch (Exception ex)
@@ -86,14 +99,14 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpPut("hideUnhideAll/{projectId}")]
-        public async Task<IActionResult> HideAll(string projectId)
+        public async Task<IActionResult> HideUnhideAllAsync(string projectId, CancellationToken cancellationToken)
         {
             try
             {
-                var existingGraphics = await _context.ProjectGraphics.ToListAsync();
-                if (!existingGraphics.Any())
+                var existingGraphics = await _context.ProjectGraphics.Where(pg => pg.ProjectId == projectId).ToListAsync(cancellationToken);             
+                if (existingGraphics.Count == 0)
                 {
-                    return Ok(existingGraphics); // Return early if no graphics exist
+                    return Ok(existingGraphics);
                 }
 
                 existingGraphics.ForEach(graphic => graphic.Hide = !graphic.Hide); // Toggle Hide property
@@ -110,10 +123,11 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpPut("hideUnhide/{graphicId}")]
-        public async Task<IActionResult> Hide(int graphicId)
+        public async Task<IActionResult> HideAsync(int graphicId)
         {
             try
             {
+               
                 var existingGraphic = await _context.ProjectGraphics.FindAsync(graphicId);
                 if (existingGraphic == null)
                 {
@@ -126,7 +140,7 @@ namespace GraphicsBackend.Controllers
                 await _context.SaveChangesAsync();
                 await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString());
 
-                return Ok();
+                return Ok(existingGraphic);
             }
             catch (Exception ex)
             {

@@ -1,7 +1,5 @@
-﻿using System.Drawing;
-using GraphicsBackend.Contexts;
+﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Models;
-using GraphicsBackend.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +22,9 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProject(string id)
+        public async Task<IActionResult> GetProjectByIdAsync(string id,CancellationToken cancellationToken)
         {
-            var project = await _context.Projects.FirstOrDefaultAsync(_ => _.Id == id);
+            var project = await _context.Projects.FindAsync(id,cancellationToken);
             if (project is null)
             {
                 return NotFound();
@@ -34,7 +32,7 @@ namespace GraphicsBackend.Controllers
             return Ok(project);
         }
         [HttpPost]
-        public async Task<IActionResult> AddNewProject([FromBody] Project project)
+        public async Task<IActionResult> AddProjectAsync([FromBody] Project project)
         {
             try
             {
@@ -51,16 +49,27 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpPut("{projectId}")]
-        public async Task<IActionResult> UpdateProject(string projectId, [FromBody] Project project)
+        public async Task<IActionResult> UpdateProjectAsync(string projectId, [FromBody] Project project)
         {
             try
             {
-                var data = await _context.Projects.FirstOrDefaultAsync(_ => _.Id == projectId);
-                if (data is null)
+                if (project == null || projectId != project.Id)
+                {
+                    return BadRequest("Invalid theme data.");
+                }
+
+                var existingProject = await _context.Projects.FindAsync(projectId);
+                if (existingProject == null)
                 {
                     return NotFound();
                 }
+
+                // Detach the existing entity to avoid tracking conflicts
+                _context.Entry(existingProject).State = EntityState.Detached;
+
+                // Attach and update the provided entity
                 _context.Projects.Attach(project);
+                _context.Entry(project).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
                 return Ok(project);
             }

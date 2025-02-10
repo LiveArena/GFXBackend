@@ -10,18 +10,18 @@ namespace GraphicsBackend.Controllers
     public class CustomersController : ControllerBase
     {
         //private readonly CosmosDbContext _cosmosDbContext;
-        private readonly ApplicationDbContext _cosmosDbContext;
+        private readonly ApplicationDbContext _dbContext;
 
         public CustomersController(ApplicationDbContext context)
         {
-            _cosmosDbContext = context;
+            _dbContext = context;
 
         }
         [HttpGet]
         public async Task<IActionResult> GetCustomers()
         {
-            var graphics = await _cosmosDbContext.ProjectGraphics.ToListAsync();
-            var themes = await _cosmosDbContext.ProjectThemes.ToListAsync();
+            var graphics = await _dbContext.ProjectGraphics.ToListAsync();
+            var themes = await _dbContext.ProjectThemes.ToListAsync();
             await WebSocketHandler.NotifyClientsAsync($"Customers is now displayed.");
             return Ok(graphics);
         }

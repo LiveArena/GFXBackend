@@ -20,10 +20,10 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetTheme(int id)
+        public async Task<IActionResult> GetProjectThemeByIdAsync(int id,CancellationToken cancellationToken)
         {
-            var theme = await _context.ProjectThemes.FirstOrDefaultAsync(_ => _.Id == id);
-            if (theme is null)
+            var theme = await _context.ProjectThemes.FindAsync(id, cancellationToken);
+            if (theme==null)
             {
                 return NotFound();
             }
@@ -31,10 +31,10 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("projects/{projectId}")]
-        public async Task<IActionResult> GetProjectThemesByProjectId(string projectId)
+        public async Task<IActionResult> GetProjectThemesByProjectIdAsync(string projectId,CancellationToken cancellationToken)
         {
-            var ProjectThemes = await _context.ProjectThemes.Where(t => t.ProjectId == projectId).ToListAsync();
-            if (ProjectThemes == null)
+            var ProjectThemes = await _context.ProjectThemes.Where(t => t.ProjectId == projectId).ToListAsync(cancellationToken);
+            if (ProjectThemes.Count()==0)
             {
                 return NotFound();
             }
@@ -42,7 +42,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddNewTheme([FromBody] ProjectTheme Theme)
+        public async Task<IActionResult> AddThemeAsync([FromBody] ProjectTheme Theme)
         {
             try
             {
@@ -62,27 +62,37 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPut("{projectThemeId}")]
-        public async Task<IActionResult> UpdateProjectThemeById(int projectThemeId, [FromBody] ProjectTheme theme)
+        public async Task<IActionResult> UpdateProjectThemeByIdAsync(int projectThemeId, [FromBody] ProjectTheme theme)
         {
             try
             {
-                var existingTheme = _context.ProjectThemes.FirstOrDefaultAsync(_ => _.Id == projectThemeId);
-                if (existingTheme is null)
+                if (theme == null || projectThemeId != theme.Id)
+                {
+                    return BadRequest("Invalid theme data.");
+                }
+
+                var existingTheme = await _context.ProjectThemes.FindAsync(projectThemeId);
+                if (existingTheme == null)
                 {
                     return NotFound();
                 }
+
+                // Detach the existing entity to avoid tracking conflicts
+                _context.Entry(existingTheme).State = EntityState.Detached;
+
+                // Attach and update the provided entity
                 _context.ProjectThemes.Attach(theme);
+                _context.Entry(theme).State = EntityState.Modified;
+
                 await _context.SaveChangesAsync();
                 await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Theme_Updated.ToString());
+
                 return Ok(theme);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-
             }
-
-
         }
     }
 
