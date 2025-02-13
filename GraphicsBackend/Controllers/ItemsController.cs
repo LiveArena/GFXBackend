@@ -19,7 +19,7 @@ namespace GraphicsBackend.Controllers
         }
         #region Project
         [HttpGet("projects/{id}")]
-        public async Task<IActionResult> GetProject(string id)
+        public async Task<IActionResult> GetProjectAsync(string id)
         {
             var cacheKey = $"Project_{id}";
             var cachedProject = await _cacheService.GetAsync<Project>(cacheKey);
@@ -36,7 +36,7 @@ namespace GraphicsBackend.Controllers
             return Ok(project);
         }
         [HttpPost("projects")]
-        public async Task<IActionResult> AddNewProject([FromBody] Project project)
+        public async Task<IActionResult> AddNewProjectAsync([FromBody] Project project)
         {
 
             try
@@ -56,12 +56,12 @@ namespace GraphicsBackend.Controllers
             }
 
         }
-        [HttpPut("projects/{projectId}")]
-        public async Task<IActionResult> UpdateProject(string projectId, [FromBody] Project project)
+        [HttpPut("projects/{Id}")]
+        public async Task<IActionResult> UpdateProjectAsync(string Id, [FromBody] Project project)
         {
             try
             {
-                var data = await _context.Projects.FirstOrDefaultAsync(_ => _.Id == projectId);
+                var data = await _context.Projects.FirstOrDefaultAsync(_ => _.Id == Id);
                 if (data is null)
                 {
                     return NotFound();
@@ -80,7 +80,7 @@ namespace GraphicsBackend.Controllers
         #endregion Project
         #region Theme
         [HttpGet("themes/{id}")]
-        public async Task<IActionResult> GetTheme(int id)
+        public async Task<IActionResult> GetThemeAsync(int id)
         {
             var cacheKey = $"Theme_{id}";
             var cachedTheme = await _cacheService.GetAsync<ProjectTheme>(cacheKey);
@@ -97,7 +97,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("themes/projects/{projectId}")]
-        public async Task<IActionResult> GetThemesByProjectId(string projectId)
+        public async Task<IActionResult> GetThemesByProjectIdAsync(string projectId)
         {
 
             var Themes = await _context.ProjectThemes.Where(_ => _.ProjectId == projectId).ToListAsync();
@@ -109,7 +109,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPost("themes")]
-        public async Task<IActionResult> AddNewTheme([FromBody] ProjectTheme Theme)
+        public async Task<IActionResult> AddNewThemeAsync([FromBody] ProjectTheme Theme)
         {
             try
             {
@@ -130,12 +130,12 @@ namespace GraphicsBackend.Controllers
 
         }
 
-        [HttpPut("themes/{themeId}")]
-        public async Task<IActionResult> UpdateThemeById(int themeId, [FromBody] ProjectTheme theme)
+        [HttpPut("themes/{Id}")]
+        public async Task<IActionResult> UpdateThemeByIdAsync(int Id, [FromBody] ProjectTheme theme)
         {
             try
             {
-                var data = _context.ProjectThemes.FirstOrDefaultAsync(_ => _.Id == themeId);
+                var data = _context.ProjectThemes.FirstOrDefaultAsync(_ => _.Id == Id);
                 if (data is null)
                 {
                     return NotFound();
@@ -156,7 +156,7 @@ namespace GraphicsBackend.Controllers
         #endregion Theme
         #region Graphic
         [HttpGet("graphics/{id}")]
-        public async Task<IActionResult> GetGraphic(int id)
+        public async Task<IActionResult> GetGraphicAsync(int id)
         {
             var cacheKey = $"Graphic_{id}";
             var cachedGraphic = await _cacheService.GetAsync<ProjectGraphic>(cacheKey);
@@ -173,7 +173,7 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpGet("graphics/projects/{projectId}")]
-        public async Task<IActionResult> GetGraphicsByProjectId(string projectId)
+        public async Task<IActionResult> GetGraphicsByProjectIdAsync(string projectId)
         {
 
             var graphics = await _context.ProjectGraphics.Where(_ => _.ProjectId == projectId).ToListAsync();
@@ -186,7 +186,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPost("graphics")]
-        public async Task<IActionResult> AddNewGraphic([FromBody] ProjectGraphic graphic)
+        public async Task<IActionResult> AddNewGraphicAsync([FromBody] ProjectGraphic graphic)
         {
             try
             {
@@ -205,12 +205,12 @@ namespace GraphicsBackend.Controllers
 
         }
 
-        [HttpPut("graphics/{graphicId}")]
-        public async Task<IActionResult> UpdateGraphicById(int graphicId, [FromBody] ProjectGraphic graphic)
+        [HttpPut("graphics/{Id}")]
+        public async Task<IActionResult> UpdateGraphicByIdAsync(int Id, [FromBody] ProjectGraphic graphic)
         {
             try
             {
-                var data = _context.ProjectGraphics.FirstOrDefaultAsync(_ => _.Id == graphicId);
+                var data = _context.ProjectGraphics.FirstOrDefaultAsync(_ => _.Id == Id);
                 if (data is null)
                 {
                     return NotFound();

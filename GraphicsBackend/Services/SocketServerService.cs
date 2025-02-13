@@ -33,40 +33,67 @@ namespace GraphicsBackend.Services
     }
     public static class WebSocketHandler
     {
-        private static readonly ConcurrentBag<WebSocket> _webSockets = new ConcurrentBag<WebSocket>();
+        private static readonly Dictionary<string, WebSocket> _connections = new();
 
-        public static async Task HandleWebSocketAsync(WebSocket webSocket)
+        public static async Task HandleWebSocketAsync(string clientId, WebSocket webSocket)
         {
-            _webSockets.Add(webSocket);
+            _connections[clientId] = webSocket;
             var buffer = new byte[1024 * 4];
-
-            while (webSocket.State == WebSocketState.Open)
+            WebSocketReceiveResult result;
+            try
             {
-                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                if (result.CloseStatus.HasValue)
+                while (webSocket.State == WebSocketState.Open)
                 {
-                    _webSockets.TryTake(out _);
-                    await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        _connections.Remove(clientId);
+                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                    }
+                    else
+                    {
+                        string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                        Console.WriteLine($"Received from {clientId}: {message}");
+                        // Handle messages here
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"WebSocket error: {ex.Message}");
+            }
+            finally
+            {
+                if (_connections.ContainsKey(clientId))
+                    _connections.Remove(clientId);
+
+                webSocket.Dispose();
             }
         }
 
-        public static async Task NotifyClientsAsync(string message)
+        public static async Task NotifyClientsAsync(string message, string clientId)
         {
-            var tasks = new List<Task>();
-
-            foreach (var socket in _webSockets)
+            if (_connections.TryGetValue(clientId, out WebSocket socket) && socket.State == WebSocketState.Open)
             {
-                if (socket.State == WebSocketState.Open)
+                var messageBuffer = Encoding.UTF8.GetBytes(message);
+                var messageSegment = new ArraySegment<byte>(messageBuffer);
+
+                try
                 {
-                    var messageBuffer = Encoding.UTF8.GetBytes(message);
-                    var messageSegment = new ArraySegment<byte>(messageBuffer);
-                    tasks.Add(socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None));
+                    await socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending message to {clientId}: {ex.Message}");
+                    _connections.Remove(clientId); // Remove disconnected client
                 }
             }
-
-            await Task.WhenAll(tasks);
+            else
+            {
+                Console.WriteLine($"Client {clientId} not found or connection is closed.");
+            }
         }
-    
-     }
+
+    }
 }

@@ -2,15 +2,15 @@
 using GraphicsBackend.Models;
 using GraphicsBackend.Services;
 using GraphicsBackend.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-// For more information on enabling Web API for empty ProjectThemes, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GraphicsBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProjectThemesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;        
@@ -33,12 +33,12 @@ namespace GraphicsBackend.Controllers
         [HttpGet("projects/{projectId}")]
         public async Task<IActionResult> GetProjectThemesByProjectIdAsync(string projectId,CancellationToken cancellationToken)
         {
-            var ProjectThemes = await _context.ProjectThemes.Where(t => t.ProjectId == projectId).ToListAsync(cancellationToken);
-            if (ProjectThemes.Count()==0)
+            var projectThemes = await _context.ProjectThemes.Where(t => t.ProjectId == projectId).ToListAsync(cancellationToken);
+            if (projectThemes.Count()==0)
             {
                 return NotFound();
             }
-            return Ok(ProjectThemes);
+            return Ok(projectThemes);
         }
 
         [HttpPost]
@@ -61,17 +61,17 @@ namespace GraphicsBackend.Controllers
 
         }
 
-        [HttpPut("{projectThemeId}")]
-        public async Task<IActionResult> UpdateProjectThemeByIdAsync(int projectThemeId, [FromBody] ProjectTheme theme)
+        [HttpPut("{Id}")]
+        public async Task<IActionResult> UpdateProjectThemeByIdAsync(int Id, [FromBody] ProjectTheme theme)
         {
             try
             {
-                if (theme == null || projectThemeId != theme.Id)
+                if (theme == null || Id != theme.Id)
                 {
                     return BadRequest("Invalid theme data.");
                 }
 
-                var existingTheme = await _context.ProjectThemes.FindAsync(projectThemeId);
+                var existingTheme = await _context.ProjectThemes.FindAsync(Id);
                 if (existingTheme == null)
                 {
                     return NotFound();
@@ -85,7 +85,8 @@ namespace GraphicsBackend.Controllers
                 _context.Entry(theme).State = EntityState.Modified;
 
                 await _context.SaveChangesAsync();
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Theme_Updated.ToString());
+                string clientId= "";
+                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Theme_Updated.ToString(),clientId);
 
                 return Ok(theme);
             }

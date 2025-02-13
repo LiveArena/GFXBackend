@@ -8,21 +8,20 @@ namespace GraphicsBackend.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class CustomersController : ControllerBase
-    {
-        //private readonly CosmosDbContext _cosmosDbContext;
-        private readonly ApplicationDbContext _dbContext;
-
+    {        
+        private readonly ApplicationDbContext _context;
         public CustomersController(ApplicationDbContext context)
         {
-            _dbContext = context;
+            _context = context;
 
         }
         [HttpGet]
         public async Task<IActionResult> GetCustomers()
         {
-            var graphics = await _dbContext.ProjectGraphics.ToListAsync();
-            var themes = await _dbContext.ProjectThemes.ToListAsync();
-            await WebSocketHandler.NotifyClientsAsync($"Customers is now displayed.");
+            var graphics = await _context.ProjectGraphics.ToListAsync();
+            var themes = await _context.ProjectThemes.ToListAsync();
+            string clientId = "";
+            await WebSocketHandler.NotifyClientsAsync($"Customers is now displayed.", clientId);
             return Ok(graphics);
         }
 

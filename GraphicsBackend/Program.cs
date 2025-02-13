@@ -126,8 +126,15 @@ app.Map("/ws", async (context) =>
 {
     if (context.WebSockets.IsWebSocketRequest)
     {
+        string clientId = context.Request.Query["clientId"];
+        if (string.IsNullOrEmpty(clientId))
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsync("Client ID is required.");
+            return;
+        }
         WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        await WebSocketHandler.HandleWebSocketAsync(webSocket);
+        await WebSocketHandler.HandleWebSocketAsync(clientId, webSocket);
     }
     else
     {

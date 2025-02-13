@@ -2,15 +2,15 @@
 using GraphicsBackend.Models;
 using GraphicsBackend.Services;
 using GraphicsBackend.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GraphicsBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProjectGraphicsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -52,7 +52,8 @@ namespace GraphicsBackend.Controllers
 
                 await _context.ProjectGraphics.AddAsync(graphic);
                 await _context.SaveChangesAsync();
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Created.ToString());
+                string clientId = "";
+                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Created.ToString(),clientId);
                 return Ok(graphic);
             }
             catch (Exception ex)
@@ -63,17 +64,17 @@ namespace GraphicsBackend.Controllers
 
         }
 
-        [HttpPut("{graphicId}")]
-        public async Task<IActionResult> UpdateProjectGraphicByIdAsync(int graphicId, [FromBody] ProjectGraphic graphic)
+        [HttpPut("{Id}")]
+        public async Task<IActionResult> UpdateProjectGraphicByIdAsync(int Id, [FromBody] ProjectGraphic graphic)
         {
             try
             {
-                if (graphic == null || graphicId != graphic.Id)
+                if (graphic == null || Id != graphic.Id)
                 {
                     return BadRequest("Invalid graphic data.");
                 }
 
-                var existingGraphic = await _context.ProjectGraphics.FindAsync(graphicId);
+                var existingGraphic = await _context.ProjectGraphics.FindAsync(Id);
                 if (existingGraphic == null)
                 {
                     return NotFound();
@@ -87,7 +88,8 @@ namespace GraphicsBackend.Controllers
                 _context.Entry(graphic).State = EntityState.Modified;
 
                 await _context.SaveChangesAsync();
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString());
+                string clientId = "";
+                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString(), clientId);
 
                 return Ok(graphic);
             }
@@ -112,7 +114,8 @@ namespace GraphicsBackend.Controllers
                 existingGraphics.ForEach(graphic => graphic.Hide = !graphic.Hide); // Toggle Hide property
 
                 await _context.SaveChangesAsync();
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString());
+                string clientId = "";
+                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString(), clientId);
 
                 return Ok(existingGraphics);
             }
@@ -122,13 +125,13 @@ namespace GraphicsBackend.Controllers
             }
 
         }
-        [HttpPut("hideUnhide/{graphicId}")]
-        public async Task<IActionResult> HideAsync(int graphicId)
+        [HttpPut("hideUnhide/{Id}")]
+        public async Task<IActionResult> HideAsync(int Id)
         {
             try
             {
                
-                var existingGraphic = await _context.ProjectGraphics.FindAsync(graphicId);
+                var existingGraphic = await _context.ProjectGraphics.FindAsync(Id);
                 if (existingGraphic == null)
                 {
                     return NotFound();
@@ -138,7 +141,8 @@ namespace GraphicsBackend.Controllers
                 existingGraphic.Hide = !existingGraphic.Hide;
 
                 await _context.SaveChangesAsync();
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString());
+                string clientId = "";
+                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString(), clientId);
 
                 return Ok(existingGraphic);
             }
