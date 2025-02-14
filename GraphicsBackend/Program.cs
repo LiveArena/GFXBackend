@@ -1,9 +1,7 @@
-using GraphicsBackend;
+using System.Net.WebSockets;
+using System.Text;
 using GraphicsBackend.Configurations;
 using GraphicsBackend.Contexts;
-using GraphicsBackend.Middelewares;
-using GraphicsBackend.Models;
-using GraphicsBackend.Notifications;
 using GraphicsBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Azure.Cosmos;
@@ -11,9 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
-using System.Configuration;
-using System.Net.WebSockets;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -102,16 +97,9 @@ builder.Services.AddSingleton<CosmosClient>(options =>
     return new CosmosClient(configurationSection["Account"], configurationSection["Key"]);
 
 });
-
 builder.Services.AddScoped(typeof(ICosmosDbService<>), typeof(CosmosDbService<>));
 
 #endregion CosmosDB
-
-#region TCP Socket
-builder.Services.AddSingleton<SocketServer>();
-builder.Services.AddSingleton<SocketServerService>();
-
-#endregion TCP Socket
 #region Redis
 builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(x =>

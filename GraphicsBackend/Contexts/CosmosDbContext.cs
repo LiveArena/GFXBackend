@@ -15,7 +15,7 @@ namespace GraphicsBackend.Contexts
         public DbSet<ProjectTheme> Themes { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure entity mappings and keys
+            
             modelBuilder.Entity<Customer>().ToContainer("Customers");
 
 
