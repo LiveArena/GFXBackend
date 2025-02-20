@@ -1,6 +1,7 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Models;
 using GraphicsBackend.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,19 +22,28 @@ namespace GraphicsBackend.Controllers
         [HttpGet("projects/{id}")]
         public async Task<IActionResult> GetProjectAsync(string id)
         {
-            var cacheKey = $"Project_{id}";
-            var cachedProject = await _cacheService.GetAsync<Project>(cacheKey);
-            if (cachedProject != null)
+            try
             {
-                return Ok(cachedProject);
+                var cacheKey = $"Project_{id}";
+                var cachedProject = await _cacheService.GetAsync<Project>(cacheKey);
+
+                if (cachedProject != null)
+                {
+                    return Ok(cachedProject);
+                }
+                var project = await _context.Projects.FirstOrDefaultAsync(_ => _.Id == id);
+                if (project is null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(project);
             }
-            var project = await _context.Projects.FirstOrDefaultAsync(_ => _.Id == id);
-            if (project is null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(500,ex.Message); 
             }
             
-            return Ok(project);
         }
         [HttpPost("projects")]
         public async Task<IActionResult> AddNewProjectAsync([FromBody] Project project)
@@ -52,7 +62,7 @@ namespace GraphicsBackend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
 
         }
@@ -73,7 +83,7 @@ namespace GraphicsBackend.Controllers
             catch (Exception ex)
             {
 
-                return BadRequest(ex.Message);
+                return StatusCode(500,ex.Message);
             }
 
         }
@@ -82,18 +92,28 @@ namespace GraphicsBackend.Controllers
         [HttpGet("themes/{id}")]
         public async Task<IActionResult> GetThemeAsync(int id)
         {
-            var cacheKey = $"Theme_{id}";
-            var cachedTheme = await _cacheService.GetAsync<ProjectTheme>(cacheKey);
-            if (cachedTheme != null)
+            try
             {
-                return Ok(cachedTheme);
+                var cacheKey = $"Theme_{id}";
+                var cachedTheme = await _cacheService.GetAsync<ProjectTheme>(cacheKey);
+                if (cachedTheme != null)
+                {
+                    return Ok(cachedTheme);
+                }
+                var Theme = await _context.ProjectThemes.FirstOrDefaultAsync(_ => _.Id == id);
+                if (Theme is null)
+                {
+                    return NotFound();
+                }
+                return Ok(Theme);
             }
-            var Theme = await _context.ProjectThemes.FirstOrDefaultAsync(_ => _.Id == id);
-            if (Theme is null)
+            catch (Exception ex)
             {
-                return NotFound();
-            }            
-            return Ok(Theme);
+
+                return StatusCode(500, ex.Message);
+            }
+
+            
         }
 
         [HttpGet("themes/projects/{projectId}")]
@@ -123,7 +143,7 @@ namespace GraphicsBackend.Controllers
             catch (Exception ex)
             {
 
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
 
             }
 
@@ -147,7 +167,7 @@ namespace GraphicsBackend.Controllers
             catch (Exception ex)
             {
 
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
 
             }
 
@@ -158,18 +178,27 @@ namespace GraphicsBackend.Controllers
         [HttpGet("graphics/{id}")]
         public async Task<IActionResult> GetGraphicAsync(int id)
         {
-            var cacheKey = $"Graphic_{id}";
-            var cachedGraphic = await _cacheService.GetAsync<ProjectGraphic>(cacheKey);
-            if (cachedGraphic != null)
+            try
             {
-                return Ok(cachedGraphic);
-            }
-            var graphic = await _context.ProjectGraphics.FirstOrDefaultAsync(_ => _.Id == id);
-            if (graphic is not null)
-            {
+                var cacheKey = $"Graphic_{id}";
+                var cachedGraphic = await _cacheService.GetAsync<ProjectGraphic>(cacheKey);
+                if (cachedGraphic != null)
+                {
+                    return Ok(cachedGraphic);
+                }
+                var graphic = await _context.ProjectGraphics.FirstOrDefaultAsync(_ => _.Id == id);
+                if (graphic is null)
+                {
+                    return NotFound();
+                }
                 return Ok(graphic);
             }
-            return NoContent();
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex.Message);
+            }
+            
 
         }
         [HttpGet("graphics/projects/{projectId}")]
@@ -177,11 +206,11 @@ namespace GraphicsBackend.Controllers
         {
 
             var graphics = await _context.ProjectGraphics.Where(_ => _.ProjectId == projectId).ToListAsync();
-            if (graphics is not null)
+            if (graphics is null)
             {
-                return Ok(graphics);
+                return NotFound();
             }
-            return NoContent();
+            return Ok(graphics);
 
         }
 
@@ -199,7 +228,7 @@ namespace GraphicsBackend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
 
 
@@ -221,7 +250,7 @@ namespace GraphicsBackend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
 
 

@@ -84,9 +84,7 @@ namespace GraphicsBackend.Controllers
                 _context.ProjectThemes.Attach(theme);
                 _context.Entry(theme).State = EntityState.Modified;
 
-                await _context.SaveChangesAsync();
-                string clientId= "";
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Theme_Updated.ToString(),clientId);
+                await _context.SaveChangesAsync();               
 
                 return Ok(theme);
             }

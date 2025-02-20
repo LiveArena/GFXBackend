@@ -7,65 +7,35 @@ namespace GraphicsBackend.Services
     {
         private static readonly Dictionary<string, WebSocket> _connections = new();
 
-        public static async Task HandleWebSocketAsync(string clientId, WebSocket webSocket)
+        public static async Task HandleWebSocketAsync(HttpContext context, WebSocket webSocket)
         {
-            _connections[clientId] = webSocket;
+            
             var buffer = new byte[1024 * 4];
-            WebSocketReceiveResult result;
-            try
+            WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+            var sendPeriodicUpdatesTask = Task.Run(async () =>
             {
-                while (webSocket.State == WebSocketState.Open)
+                while (!result.CloseStatus.HasValue)
                 {
-                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    var message = $"Server message at {DateTime.UtcNow}";
+                    var encodedMessage = Encoding.UTF8.GetBytes(message);
 
-                    if (result.MessageType == WebSocketMessageType.Close)
-                    {
-                        _connections.Remove(clientId);
-                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
-                    }
-                    else
-                    {
-                        string message = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                        Console.WriteLine($"Received from {clientId}: {message}");
-                        // Handle messages here
-                    }
+                    // Send the message to the client
+                    await webSocket.SendAsync(new ArraySegment<byte>(encodedMessage), WebSocketMessageType.Text, true, CancellationToken.None);
+                    await Task.Delay(5000); // Wait for 5 seconds before sending the next message
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"WebSocket error: {ex.Message}");
-            }
-            finally
-            {
-                if (_connections.ContainsKey(clientId))
-                    _connections.Remove(clientId);
+            });
 
-                webSocket.Dispose();
+            // Continue listening for client messages
+            while (!result.CloseStatus.HasValue)
+            {
+                await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);
+                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             }
+
+            await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+
         }
 
-        public static async Task NotifyClientsAsync(string message, string clientId)
-        {
-            if (_connections.TryGetValue(clientId, out WebSocket socket) && socket.State == WebSocketState.Open)
-            {
-                var messageBuffer = Encoding.UTF8.GetBytes(message);
-                var messageSegment = new ArraySegment<byte>(messageBuffer);
-
-                try
-                {
-                    await socket.SendAsync(messageSegment, WebSocketMessageType.Text, true, CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error sending message to {clientId}: {ex.Message}");
-                    _connections.Remove(clientId); // Remove disconnected client
-                }
-            }
-            else
-            {
-                Console.WriteLine($"Client {clientId} not found or connection is closed.");
-            }
-        }
 
     }
 }

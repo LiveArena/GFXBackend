@@ -13,7 +13,7 @@ using StackExchange.Redis;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-
+//builder.WebHost.UseUrls("http://0.0.0.0:5000");
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings.GetValue<string>("SecretKey");
 builder.Services.AddAuthentication(options =>
@@ -113,16 +113,9 @@ app.UseWebSockets();
 app.Map("/ws", async (context) =>
 {
     if (context.WebSockets.IsWebSocketRequest)
-    {
-        string clientId = context.Request.Query["clientId"];
-        if (string.IsNullOrEmpty(clientId))
-        {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsync("Client ID is required.");
-            return;
-        }
+    {        
         WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        await WebSocketHandler.HandleWebSocketAsync(clientId, webSocket);
+        await WebSocketHandler.HandleWebSocketAsync(context, webSocket);
     }
     else
     {

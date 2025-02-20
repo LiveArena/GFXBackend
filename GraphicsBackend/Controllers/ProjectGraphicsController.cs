@@ -51,9 +51,7 @@ namespace GraphicsBackend.Controllers
             {
 
                 await _context.ProjectGraphics.AddAsync(graphic);
-                await _context.SaveChangesAsync();
-                string clientId = "";
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Created.ToString(),clientId);
+                await _context.SaveChangesAsync();                
                 return Ok(graphic);
             }
             catch (Exception ex)
@@ -88,9 +86,6 @@ namespace GraphicsBackend.Controllers
                 _context.Entry(graphic).State = EntityState.Modified;
 
                 await _context.SaveChangesAsync();
-                string clientId = "";
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString(), clientId);
-
                 return Ok(graphic);
             }
             catch (Exception ex)
@@ -114,9 +109,6 @@ namespace GraphicsBackend.Controllers
                 existingGraphics.ForEach(graphic => graphic.Hide = !graphic.Hide); // Toggle Hide property
 
                 await _context.SaveChangesAsync();
-                string clientId = "";
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString(), clientId);
-
                 return Ok(existingGraphics);
             }
             catch (Exception ex)
@@ -141,9 +133,6 @@ namespace GraphicsBackend.Controllers
                 existingGraphic.Hide = !existingGraphic.Hide;
 
                 await _context.SaveChangesAsync();
-                string clientId = "";
-                await WebSocketHandler.NotifyClientsAsync(EnumSocketMessage.Graphic_Updated.ToString(), clientId);
-
                 return Ok(existingGraphic);
             }
             catch (Exception ex)
