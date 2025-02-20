@@ -1,16 +1,13 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GraphicsBackend.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
+    [ApiController]    
     public class ProjectsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

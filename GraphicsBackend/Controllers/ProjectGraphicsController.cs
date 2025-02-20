@@ -1,16 +1,12 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Models;
-using GraphicsBackend.Services;
-using GraphicsBackend.Utilities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraphicsBackend.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
+    [ApiController]   
     public class ProjectGraphicsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

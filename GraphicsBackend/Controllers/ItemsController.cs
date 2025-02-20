@@ -1,7 +1,5 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Models;
-using GraphicsBackend.Services;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,26 +9,17 @@ namespace GraphicsBackend.Controllers
     [ApiController]
     public class ItemsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IRedisCacheService _cacheService;
-        public ItemsController(ApplicationDbContext context, IRedisCacheService cacheService)
+        private readonly ApplicationDbContext _context;        
+        public ItemsController(ApplicationDbContext context)
         {
-            _context = context;
-            _cacheService = cacheService;
+            _context = context;            
         }
         #region Project
         [HttpGet("projects/{id}")]
         public async Task<IActionResult> GetProjectAsync(string id)
         {
             try
-            {
-                var cacheKey = $"Project_{id}";
-                var cachedProject = await _cacheService.GetAsync<Project>(cacheKey);
-
-                if (cachedProject != null)
-                {
-                    return Ok(cachedProject);
-                }
+            {                
                 var project = await _context.Projects.FirstOrDefaultAsync(_ => _.Id == id);
                 if (project is null)
                 {
@@ -50,11 +39,7 @@ namespace GraphicsBackend.Controllers
         {
 
             try
-            {
-
-
-                var cacheKey = $"Project_{project.Id}";
-                await _cacheService.SetAsync(cacheKey, project, TimeSpan.FromMinutes(10));
+            {                
                 await _context.Projects.AddAsync(project);
                 await _context.SaveChangesAsync();               
                 return Ok(project);
@@ -94,12 +79,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                var cacheKey = $"Theme_{id}";
-                var cachedTheme = await _cacheService.GetAsync<ProjectTheme>(cacheKey);
-                if (cachedTheme != null)
-                {
-                    return Ok(cachedTheme);
-                }
+                
                 var Theme = await _context.ProjectThemes.FirstOrDefaultAsync(_ => _.Id == id);
                 if (Theme is null)
                 {
@@ -133,9 +113,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-
-                var cacheKey = $"Theme_{Theme.Id}";
-                await _cacheService.SetAsync(cacheKey, Theme, TimeSpan.FromMinutes(10));
+               
                 await _context.ProjectThemes.AddAsync(Theme);
                 await _context.SaveChangesAsync();                
                 return Ok(Theme.Id);
@@ -180,12 +158,6 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                var cacheKey = $"Graphic_{id}";
-                var cachedGraphic = await _cacheService.GetAsync<ProjectGraphic>(cacheKey);
-                if (cachedGraphic != null)
-                {
-                    return Ok(cachedGraphic);
-                }
                 var graphic = await _context.ProjectGraphics.FirstOrDefaultAsync(_ => _.Id == id);
                 if (graphic is null)
                 {
@@ -218,10 +190,7 @@ namespace GraphicsBackend.Controllers
         public async Task<IActionResult> AddNewGraphicAsync([FromBody] ProjectGraphic graphic)
         {
             try
-            {
-
-                var cacheKey = $"Graphic_{graphic.Id}";
-                await _cacheService.SetAsync(cacheKey, graphic, TimeSpan.FromMinutes(10));
+            {                
                 await _context.ProjectGraphics.AddAsync(graphic);
                 await _context.SaveChangesAsync();
                 return Ok(graphic);
