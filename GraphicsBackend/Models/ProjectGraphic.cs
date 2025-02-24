@@ -11,10 +11,5 @@ namespace GraphicsBackend.Models
         public Guid Id { get; set; }
         public Guid? ProjectId { get; set; }
         public string? JSONData { get; set; }
-
-        [ForeignKey("ProjectId")]
-        public Project? Project { get; set; }
-
-        public bool Hide { get; set; }
     }
 }

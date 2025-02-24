@@ -42,7 +42,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                Theme.Id = new Guid();  
+                Theme.Id = Guid.NewGuid();
                 await _context.ProjectThemes.AddAsync(Theme);
                 await _context.SaveChangesAsync();
                 return Ok(Theme.Id);

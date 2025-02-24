@@ -27,7 +27,7 @@ namespace GraphicsBackend.XUnitTests
         private void SeedDatabase()
         {
             var project = new Project { Id = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00") };
-            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
             _context.Projects.Add(project);
             _context.ProjectGraphics.Add(graphic);
             _context.SaveChanges();
@@ -81,7 +81,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task AddProjectGraphicAsync_ReturnsOkResult_WithGraphic()
         {
             // Arrange
-            var graphic = new ProjectGraphic { ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
 
             // Act
             var result = await _controller.AddProjectGraphicAsync(graphic);
@@ -96,7 +96,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task AddProjectGraphicAsync_ReturnsBadRequest_OnException()
         {
             // Arrange
-            var graphic = new ProjectGraphic { ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
             _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
             // Act
@@ -111,7 +111,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task UpdateProjectGraphicByIdAsync_ReturnsOkResult_WithGraphic()
         {
             // Arrange
-            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
 
             // Act
             var result = await _controller.UpdateProjectGraphicByIdAsync(new Guid("111223344-5566-7788-99PG-BBCCDDEEFF00234567"), graphic);
@@ -126,7 +126,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task UpdateProjectGraphicById_ReturnsNotFound_WhenGraphicNotFound()
         {
             // Arrange
-            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
 
             // Act
             var result = await _controller.UpdateProjectGraphicByIdAsync(new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), graphic);
@@ -139,7 +139,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task UpdateProjectGraphicByIdAsync_ReturnsBadRequest_OnException()
         {
             // Arrange
-            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("123411223344-5566-7788-99PP-BBCCDDEEFF00567"), JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("123411223344-5566-7788-99PP-BBCCDDEEFF00567"), JSONData = "{}" };
             _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
             // Act
@@ -150,55 +150,6 @@ namespace GraphicsBackend.XUnitTests
             Assert.NotNull(badRequestResult.Value);
         }
 
-        [Fact]
-        public async Task HideUnhideAllAsync_ReturnsOkResult_WithUpdatedGraphics()
-        {
-            // Act
-            var result = await _controller.HideUnhideAllAsync(new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), CancellationToken.None);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<ProjectGraphic>>(okResult.Value);
-            Assert.Single(returnValue);
-            Assert.True(returnValue.First().Hide);
-        }
-
         
-
-        [Fact]
-        public async Task HideAsync_ReturnsOkResult_WithUpdatedGraphic()
-        {
-            // Act
-            var result = await _controller.HideAsync(new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"));
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<ProjectGraphic>(okResult.Value);
-            Assert.True(returnValue.Hide);
-        }
-
-        [Fact]
-        public async Task HideAsync_ReturnsNotFound_WhenGraphicNotFound()
-        {
-            // Act
-            var result = await _controller.HideAsync(new Guid("11223344-5566-7788-11NF-BBCCDDEEFF00"));
-
-            // Assert
-            Assert.IsType<NotFoundResult>(result);
-        }
-
-        [Fact]
-        public async Task HideAsync_ReturnsBadRequest_OnException()
-        {
-            // Arrange
-            _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
-
-            // Act
-            var result = await _controller.HideAsync(new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"));
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.NotNull(badRequestResult.Value);
-        }
     }
 }

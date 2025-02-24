@@ -9,13 +9,6 @@ namespace GraphicsBackend.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public required Guid Id { get; set; }
         public int? CustomerId { get; set; }
-        public int? ProjectThemeId { get; set; }
-
-        [ForeignKey("CustomerId")]
-        public Customer? Customer { get; set; }
-
-        [ForeignKey("ProjectThemeId")]
-        public ProjectTheme? ProjectTheme { get; set; }
 
 
     }

@@ -39,7 +39,8 @@ namespace GraphicsBackend.Controllers
         {
 
             try
-            {                
+            {             
+                project.Id = Guid.NewGuid();
                 await _context.Projects.AddAsync(project);
                 await _context.SaveChangesAsync();               
                 return Ok(project);
@@ -56,8 +57,8 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                var data = await _context.Projects.FirstOrDefaultAsync(_ => _.Id == Id);
-                if (data is null)
+                var data = await _context.Projects.AnyAsync(_ => _.Id == Id);
+                if (!data )
                 {
                     return NotFound();
                 }
@@ -113,7 +114,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-               
+                Theme.Id = Guid.NewGuid();
                 await _context.ProjectThemes.AddAsync(Theme);
                 await _context.SaveChangesAsync();                
                 return Ok(Theme.Id);
@@ -133,8 +134,8 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                var data = _context.ProjectThemes.FirstOrDefaultAsync(_ => _.Id == Id);
-                if (data is null)
+                var data =await _context.ProjectThemes.AnyAsync(_ => _.Id == Id);
+                if (!data )
                 {
                     return NotFound();
                 }
@@ -190,7 +191,8 @@ namespace GraphicsBackend.Controllers
         public async Task<IActionResult> AddNewGraphicAsync([FromBody] ProjectGraphic graphic)
         {
             try
-            {                
+            {      
+                graphic.Id = Guid.NewGuid();
                 await _context.ProjectGraphics.AddAsync(graphic);
                 await _context.SaveChangesAsync();
                 return Ok(graphic);
@@ -208,8 +210,8 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                var data = _context.ProjectGraphics.FirstOrDefaultAsync(_ => _.Id == Id);
-                if (data is null)
+                var data = await _context.ProjectGraphics.AnyAsync(_ => _.Id == Id);
+                if (!data)
                 {
                     return NotFound();
                 }

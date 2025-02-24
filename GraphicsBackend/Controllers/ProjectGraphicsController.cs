@@ -45,7 +45,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                graphic.Id=new Guid();
+                graphic.Id = Guid.NewGuid();
                 await _context.ProjectGraphics.AddAsync(graphic);
                 await _context.SaveChangesAsync();                
                 return Ok(graphic);
@@ -91,52 +91,7 @@ namespace GraphicsBackend.Controllers
 
 
         }
-        [HttpPut("hideUnhideAll/{projectId}")]
-        public async Task<IActionResult> HideUnhideAllAsync(Guid projectId, CancellationToken cancellationToken)
-        {
-            try
-            {
-                var existingGraphics = await _context.ProjectGraphics.Where(pg => pg.ProjectId == projectId).ToListAsync(cancellationToken);             
-                if (existingGraphics.Count == 0)
-                {
-                    return Ok(existingGraphics);
-                }
-
-                existingGraphics.ForEach(graphic => graphic.Hide = !graphic.Hide); // Toggle Hide property
-
-                await _context.SaveChangesAsync();
-                return Ok(existingGraphics);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-        }
-        [HttpPut("hideUnhide/{Id}")]
-        public async Task<IActionResult> HideAsync(Guid Id)
-        {
-            try
-            {
-               
-                var existingGraphic = await _context.ProjectGraphics.FindAsync(Id);
-                if (existingGraphic == null)
-                {
-                    return NotFound();
-                }
-
-                // Toggle Hide property
-                existingGraphic.Hide = !existingGraphic.Hide;
-
-                await _context.SaveChangesAsync();
-                return Ok(existingGraphic);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-        }
+        
 
 
 

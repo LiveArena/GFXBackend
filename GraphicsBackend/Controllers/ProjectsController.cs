@@ -33,7 +33,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                project.Id = new Guid();
+                project.Id = Guid.NewGuid();
                 await _context.Projects.AddAsync(project);
                 await _context.SaveChangesAsync();
                 return Ok(project);
@@ -45,17 +45,17 @@ namespace GraphicsBackend.Controllers
             }
 
         }
-        [HttpPut("{projectId}")]
-        public async Task<IActionResult> UpdateProjectAsync(Guid projectId, [FromBody] Project project)
+        [HttpPut("{Id}")]
+        public async Task<IActionResult> UpdateProjectAsync(Guid Id, [FromBody] Project project)
         {
             try
             {
-                if (project == null || projectId != project.Id)
+                if (project == null || Id != project.Id)
                 {
                     return BadRequest("Invalid theme data.");
                 }
 
-                var existingProject = await _context.Projects.FindAsync(projectId);
+                var existingProject = await _context.Projects.FindAsync(Id);
                 if (existingProject == null)
                 {
                     return NotFound();
