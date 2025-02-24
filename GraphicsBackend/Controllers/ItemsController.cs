@@ -16,7 +16,7 @@ namespace GraphicsBackend.Controllers
         }
         #region Project
         [HttpGet("projects/{id}")]
-        public async Task<IActionResult> GetProjectAsync(string id)
+        public async Task<IActionResult> GetProjectAsync(Guid id)
         {
             try
             {                
@@ -52,7 +52,7 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpPut("projects/{Id}")]
-        public async Task<IActionResult> UpdateProjectAsync(string Id, [FromBody] Project project)
+        public async Task<IActionResult> UpdateProjectAsync(Guid Id, [FromBody] Project project)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace GraphicsBackend.Controllers
         #endregion Project
         #region Theme
         [HttpGet("themes/{id}")]
-        public async Task<IActionResult> GetThemeAsync(int id)
+        public async Task<IActionResult> GetThemeAsync(Guid id)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("themes/projects/{projectId}")]
-        public async Task<IActionResult> GetThemesByProjectIdAsync(string projectId)
+        public async Task<IActionResult> GetThemesByProjectIdAsync(Guid projectId)
         {
 
             var Themes = await _context.ProjectThemes.Where(_ => _.ProjectId == projectId).ToListAsync();
@@ -129,7 +129,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPut("themes/{Id}")]
-        public async Task<IActionResult> UpdateThemeByIdAsync(int Id, [FromBody] ProjectTheme theme)
+        public async Task<IActionResult> UpdateThemeByIdAsync(Guid Id, [FromBody] ProjectTheme theme)
         {
             try
             {
@@ -154,7 +154,7 @@ namespace GraphicsBackend.Controllers
         #endregion Theme
         #region Graphic
         [HttpGet("graphics/{id}")]
-        public async Task<IActionResult> GetGraphicAsync(int id)
+        public async Task<IActionResult> GetGraphicAsync(Guid id)
         {
             try
             {
@@ -174,7 +174,7 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpGet("graphics/projects/{projectId}")]
-        public async Task<IActionResult> GetGraphicsByProjectIdAsync(string projectId)
+        public async Task<IActionResult> GetGraphicsByProjectIdAsync(Guid projectId)
         {
 
             var graphics = await _context.ProjectGraphics.Where(_ => _.ProjectId == projectId).ToListAsync();
@@ -204,7 +204,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPut("graphics/{Id}")]
-        public async Task<IActionResult> UpdateGraphicByIdAsync(int Id, [FromBody] ProjectGraphic graphic)
+        public async Task<IActionResult> UpdateGraphicByIdAsync(Guid Id, [FromBody] ProjectGraphic graphic)
         {
             try
             {

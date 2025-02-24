@@ -16,7 +16,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProjectGraphicByIdAsync(int id,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProjectGraphicByIdAsync(Guid id,CancellationToken cancellationToken)
         {
 
             var graphic = await _context.ProjectGraphics.FindAsync(id,cancellationToken);
@@ -28,7 +28,7 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpGet("projects/{projectId}")]
-        public async Task<IActionResult> GetProjectGraphicsByProjectIdAsync(string projectId,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProjectGraphicsByProjectIdAsync(Guid projectId,CancellationToken cancellationToken)
         {
 
             var graphics = await _context.ProjectGraphics.Where(g => g.ProjectId == projectId).ToListAsync(cancellationToken);
@@ -45,7 +45,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-
+                graphic.Id=new Guid();
                 await _context.ProjectGraphics.AddAsync(graphic);
                 await _context.SaveChangesAsync();                
                 return Ok(graphic);
@@ -59,7 +59,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateProjectGraphicByIdAsync(int Id, [FromBody] ProjectGraphic graphic)
+        public async Task<IActionResult> UpdateProjectGraphicByIdAsync(Guid Id, [FromBody] ProjectGraphic graphic)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpPut("hideUnhideAll/{projectId}")]
-        public async Task<IActionResult> HideUnhideAllAsync(string projectId, CancellationToken cancellationToken)
+        public async Task<IActionResult> HideUnhideAllAsync(Guid projectId, CancellationToken cancellationToken)
         {
             try
             {
@@ -114,7 +114,7 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpPut("hideUnhide/{Id}")]
-        public async Task<IActionResult> HideAsync(int Id)
+        public async Task<IActionResult> HideAsync(Guid Id)
         {
             try
             {

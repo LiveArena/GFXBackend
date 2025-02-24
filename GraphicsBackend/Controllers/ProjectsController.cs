@@ -19,7 +19,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProjectByIdAsync(string id,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProjectByIdAsync(Guid id,CancellationToken cancellationToken)
         {
             var project = await _context.Projects.FindAsync(id,cancellationToken);
             if (project is null)
@@ -33,7 +33,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                project.Id = Guid.NewGuid().ToString("N")[..7].ToUpper();
+                project.Id = new Guid();
                 await _context.Projects.AddAsync(project);
                 await _context.SaveChangesAsync();
                 return Ok(project);
@@ -46,7 +46,7 @@ namespace GraphicsBackend.Controllers
 
         }
         [HttpPut("{projectId}")]
-        public async Task<IActionResult> UpdateProjectAsync(string projectId, [FromBody] Project project)
+        public async Task<IActionResult> UpdateProjectAsync(Guid projectId, [FromBody] Project project)
         {
             try
             {

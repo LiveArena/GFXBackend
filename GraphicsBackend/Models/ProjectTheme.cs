@@ -9,8 +9,8 @@ namespace GraphicsBackend.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public required int Id { get; set; }
-        public string? ProjectId { get; set; }
+        public required Guid Id { get; set; }
+        public Guid? ProjectId { get; set; }
         public string? JSONData { get; set; }
         [ForeignKey("ProjectId")]
         public Project? Project { get; set; }

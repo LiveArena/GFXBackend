@@ -26,8 +26,8 @@ namespace GraphicsBackend.XUnitTests
 
         private void SeedDatabase()
         {
-            var project = new Project { Id = "1234567" };
-            var graphic = new ProjectGraphic { Id = 1, ProjectId = "1234567", JSONData = "{}", Hide = false };
+            var project = new Project { Id = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00") };
+            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
             _context.Projects.Add(project);
             _context.ProjectGraphics.Add(graphic);
             _context.SaveChanges();
@@ -37,19 +37,19 @@ namespace GraphicsBackend.XUnitTests
         public async Task GetProjectGraphicByIdAsync_ReturnsOkResult_WithGraphic()
         {
             // Act
-            var result = await _controller.GetProjectGraphicByIdAsync(1, CancellationToken.None);
+            var result = await _controller.GetProjectGraphicByIdAsync(new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), CancellationToken.None);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<ProjectGraphic>(okResult.Value);
-            Assert.Equal(1, returnValue.Id);
+            Assert.Equal(new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), returnValue.Id);
         }
 
         [Fact]
         public async Task GetProjectGraphicByIdAsync_ReturnsNoContent_WhenGraphicNotFound()
         {
             // Act
-            var result = await _controller.GetProjectGraphicByIdAsync(999, CancellationToken.None);
+            var result = await _controller.GetProjectGraphicByIdAsync(new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), CancellationToken.None);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -59,7 +59,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task GetProjectGraphicsByProjectIdAsync_ReturnsOkResult_WithGraphics()
         {
             // Act
-            var result = await _controller.GetProjectGraphicsByProjectIdAsync("1234567", CancellationToken.None);
+            var result = await _controller.GetProjectGraphicsByProjectIdAsync(new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), CancellationToken.None);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -71,7 +71,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task GetProjectGraphicsByProjectIdAsync_ReturnsNoContent_WhenGraphicsNotFound()
         {
             // Act
-            var result = await _controller.GetProjectGraphicsByProjectIdAsync("nonexistent", CancellationToken.None);
+            var result = await _controller.GetProjectGraphicsByProjectIdAsync(new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), CancellationToken.None);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -81,7 +81,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task AddProjectGraphicAsync_ReturnsOkResult_WithGraphic()
         {
             // Arrange
-            var graphic = new ProjectGraphic { ProjectId = "1234567", JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
 
             // Act
             var result = await _controller.AddProjectGraphicAsync(graphic);
@@ -96,7 +96,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task AddProjectGraphicAsync_ReturnsBadRequest_OnException()
         {
             // Arrange
-            var graphic = new ProjectGraphic { ProjectId = "1234567", JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
             _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
             // Act
@@ -111,25 +111,25 @@ namespace GraphicsBackend.XUnitTests
         public async Task UpdateProjectGraphicByIdAsync_ReturnsOkResult_WithGraphic()
         {
             // Arrange
-            var graphic = new ProjectGraphic { Id = 1, ProjectId = "1234567", JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
 
             // Act
-            var result = await _controller.UpdateProjectGraphicByIdAsync(1, graphic);
+            var result = await _controller.UpdateProjectGraphicByIdAsync(new Guid("111223344-5566-7788-99PG-BBCCDDEEFF00234567"), graphic);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<ProjectGraphic>(okResult.Value);
-            Assert.Equal(1, returnValue.Id);
+            Assert.Equal(new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), returnValue.Id);
         }
 
         [Fact]
         public async Task UpdateProjectGraphicById_ReturnsNotFound_WhenGraphicNotFound()
         {
             // Arrange
-            var graphic = new ProjectGraphic { Id = 999, ProjectId = "1234567", JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}", Hide = false };
 
             // Act
-            var result = await _controller.UpdateProjectGraphicByIdAsync(999, graphic);
+            var result = await _controller.UpdateProjectGraphicByIdAsync(new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), graphic);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -139,11 +139,11 @@ namespace GraphicsBackend.XUnitTests
         public async Task UpdateProjectGraphicByIdAsync_ReturnsBadRequest_OnException()
         {
             // Arrange
-            var graphic = new ProjectGraphic { Id = 1, ProjectId = "1234567", JSONData = "{}", Hide = false };
+            var graphic = new ProjectGraphic { Id = new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), ProjectId = new Guid("123411223344-5566-7788-99PP-BBCCDDEEFF00567"), JSONData = "{}", Hide = false };
             _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
             // Act
-            var result = await _controller.UpdateProjectGraphicByIdAsync(1, graphic);
+            var result = await _controller.UpdateProjectGraphicByIdAsync(new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"), graphic);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -154,7 +154,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task HideUnhideAllAsync_ReturnsOkResult_WithUpdatedGraphics()
         {
             // Act
-            var result = await _controller.HideUnhideAllAsync("1234567", CancellationToken.None);
+            var result = await _controller.HideUnhideAllAsync(new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), CancellationToken.None);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -169,7 +169,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task HideAsync_ReturnsOkResult_WithUpdatedGraphic()
         {
             // Act
-            var result = await _controller.HideAsync(1);
+            var result = await _controller.HideAsync(new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"));
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -181,7 +181,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task HideAsync_ReturnsNotFound_WhenGraphicNotFound()
         {
             // Act
-            var result = await _controller.HideAsync(999);
+            var result = await _controller.HideAsync(new Guid("11223344-5566-7788-11NF-BBCCDDEEFF00"));
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -194,7 +194,7 @@ namespace GraphicsBackend.XUnitTests
             _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
             // Act
-            var result = await _controller.HideAsync(1);
+            var result = await _controller.HideAsync(new Guid("11223344-5566-7788-99PG-BBCCDDEEFF00"));
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);

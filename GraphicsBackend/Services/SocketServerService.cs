@@ -4,8 +4,7 @@ using System.Text;
 namespace GraphicsBackend.Services
 {
     public static class WebSocketHandler
-    {
-        private static readonly Dictionary<string, WebSocket> _connections = new();
+    {       
 
         public static async Task HandleWebSocketAsync(HttpContext context, WebSocket webSocket)
         {

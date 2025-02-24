@@ -13,7 +13,6 @@ using StackExchange.Redis;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-//builder.WebHost.UseUrls("http://0.0.0.0:5000");
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings.GetValue<string>("SecretKey");
 builder.Services.AddAuthentication(options =>
@@ -79,10 +78,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-                options => options.CommandTimeout(180)));  // Timeout set to 180 seconds));
+                options => options.CommandTimeout(180))); 
 
 #region CosmosBD
-// Add DbContext
+
 builder.Services.AddDbContext<CosmosDbContext>(options =>
 
     options.UseCosmos(
@@ -127,7 +126,6 @@ app.Map("/ws", async (context) =>
 
 var jwtTokenGenerator = app.Services.GetRequiredService<JwtTokenGenerator>();
 var token = jwtTokenGenerator.GenerateToken();
-
 Console.WriteLine($"Generated JWT Token: {token}");
 
 
@@ -149,34 +147,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-static async Task HandleWebSocketAsync(HttpContext context, WebSocket webSocket)
-{
-    var buffer = new byte[1024 * 4];
-    WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-    // Simulate sending data at any time (e.g., every 5 seconds)
-    var sendPeriodicUpdatesTask = Task.Run(async () =>
-    {
-        while (!result.CloseStatus.HasValue)
-        {
-            var message = $"Server message at {DateTime.UtcNow}";
-            var encodedMessage = Encoding.UTF8.GetBytes(message);
-
-            // Send the message to the client
-            await webSocket.SendAsync(new ArraySegment<byte>(encodedMessage), WebSocketMessageType.Text, true, CancellationToken.None);
-
-            await Task.Delay(5000); // Wait for 5 seconds before sending the next message
-        }
-    });
-
-    // Continue listening for client messages
-    while (!result.CloseStatus.HasValue)
-    {
-        await webSocket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);
-        result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-    }
-
-    await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
-
-}

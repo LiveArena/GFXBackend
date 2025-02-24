@@ -7,7 +7,7 @@ namespace GraphicsBackend.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public required string Id { get; set; }
+        public required Guid Id { get; set; }
         public int? CustomerId { get; set; }
         public int? ProjectThemeId { get; set; }
 

@@ -13,11 +13,6 @@ namespace GraphicsBackend.Services
             _cosmosClient = cosmosClient;
         }
 
-        private Container GetContainer(string containerName)
-        {
-            return _cosmosClient.GetContainer(_databaseName, containerName);
-        }
-
         public async Task AddAsync(T item, string id, string containerName)
         {
             var container = _cosmosClient.GetContainer(_databaseName, containerName);

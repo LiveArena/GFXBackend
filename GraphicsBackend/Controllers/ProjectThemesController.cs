@@ -16,7 +16,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProjectThemeByIdAsync(int id,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProjectThemeByIdAsync(Guid id,CancellationToken cancellationToken)
         {
             var theme = await _context.ProjectThemes.FindAsync(id, cancellationToken);
             if (theme==null)
@@ -27,7 +27,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpGet("projects/{projectId}")]
-        public async Task<IActionResult> GetProjectThemesByProjectIdAsync(string projectId,CancellationToken cancellationToken)
+        public async Task<IActionResult> GetProjectThemesByProjectIdAsync(Guid projectId,CancellationToken cancellationToken)
         {
             var projectThemes = await _context.ProjectThemes.Where(t => t.ProjectId == projectId).ToListAsync(cancellationToken);
             if (projectThemes.Count()==0)
@@ -42,7 +42,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-
+                Theme.Id = new Guid();  
                 await _context.ProjectThemes.AddAsync(Theme);
                 await _context.SaveChangesAsync();
                 return Ok(Theme.Id);
@@ -58,7 +58,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateProjectThemeByIdAsync(int Id, [FromBody] ProjectTheme theme)
+        public async Task<IActionResult> UpdateProjectThemeByIdAsync(Guid Id, [FromBody] ProjectTheme theme)
         {
             try
             {
