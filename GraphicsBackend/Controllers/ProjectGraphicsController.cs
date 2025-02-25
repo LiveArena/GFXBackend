@@ -32,7 +32,7 @@ namespace GraphicsBackend.Controllers
         {
 
             var graphics = await _context.ProjectGraphics.Where(g => g.ProjectId == projectId).ToListAsync(cancellationToken);
-            if (graphics.Any())
+            if (graphics.Count != 0)
             {
                 return Ok(graphics);
             }
@@ -44,8 +44,7 @@ namespace GraphicsBackend.Controllers
         public async Task<IActionResult> AddProjectGraphicAsync([FromBody] ProjectGraphic graphic)
         {
             try
-            {
-                graphic.Id = Guid.NewGuid();
+            {                
                 await _context.ProjectGraphics.AddAsync(graphic);
                 await _context.SaveChangesAsync();                
                 return Ok(graphic);
@@ -69,20 +68,15 @@ namespace GraphicsBackend.Controllers
                 }
 
                 var existingGraphic = await _context.ProjectGraphics.FindAsync(Id);
-                if (existingGraphic == null)
+                if (existingGraphic is not null)
                 {
-                    return NotFound();
+                    existingGraphic.ProjectId = graphic.ProjectId;
+                    existingGraphic.JSONData = graphic.JSONData;
+                    _context.ProjectGraphics.Attach(existingGraphic);
+                    await _context.SaveChangesAsync();
+                    return Ok(existingGraphic);                   
                 }
-
-                // Detach the existing entity to avoid tracking conflicts
-                _context.Entry(existingGraphic).State = EntityState.Detached;
-
-                // Attach and update the provided entity
-                _context.ProjectGraphics.Attach(graphic);
-                _context.Entry(graphic).State = EntityState.Modified;
-
-                await _context.SaveChangesAsync();
-                return Ok(graphic);
+                return NotFound();
             }
             catch (Exception ex)
             {

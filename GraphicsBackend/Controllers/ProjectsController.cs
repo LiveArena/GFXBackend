@@ -32,8 +32,7 @@ namespace GraphicsBackend.Controllers
         public async Task<IActionResult> AddProjectAsync([FromBody] Project project)
         {
             try
-            {
-                project.Id = Guid.NewGuid();
+            {                
                 await _context.Projects.AddAsync(project);
                 await _context.SaveChangesAsync();
                 return Ok(project);
@@ -56,19 +55,14 @@ namespace GraphicsBackend.Controllers
                 }
 
                 var existingProject = await _context.Projects.FindAsync(Id);
-                if (existingProject == null)
+                if (existingProject is not null)
                 {
-                    return NotFound();
+                    existingProject.CustomerId = project.CustomerId;
+                    _context.Projects.Attach(existingProject);
+                    await _context.SaveChangesAsync();
+                    return Ok(existingProject);                    
                 }
-
-                // Detach the existing entity to avoid tracking conflicts
-                _context.Entry(existingProject).State = EntityState.Detached;
-
-                // Attach and update the provided entity
-                _context.Projects.Attach(project);
-                _context.Entry(project).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                return Ok(project);
+                return NotFound();
             }
             catch (Exception ex)
             {

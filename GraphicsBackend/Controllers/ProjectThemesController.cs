@@ -42,7 +42,7 @@ namespace GraphicsBackend.Controllers
         {
             try
             {
-                Theme.Id = Guid.NewGuid();
+               
                 await _context.ProjectThemes.AddAsync(Theme);
                 await _context.SaveChangesAsync();
                 return Ok(Theme.Id);
@@ -68,21 +68,16 @@ namespace GraphicsBackend.Controllers
                 }
 
                 var existingTheme = await _context.ProjectThemes.FindAsync(Id);
-                if (existingTheme == null)
+                if (existingTheme is not null)
                 {
-                    return NotFound();
+                    existingTheme.ProjectId = theme.ProjectId;
+                    existingTheme.JSONData = theme.JSONData;
+                    _context.ProjectThemes.Attach(existingTheme);
+                    await _context.SaveChangesAsync();
+                    return Ok(existingTheme);
+                    
                 }
-
-                // Detach the existing entity to avoid tracking conflicts
-                _context.Entry(existingTheme).State = EntityState.Detached;
-
-                // Attach and update the provided entity
-                _context.ProjectThemes.Attach(theme);
-                _context.Entry(theme).State = EntityState.Modified;
-
-                await _context.SaveChangesAsync();               
-
-                return Ok(theme);
+                return NotFound();
             }
             catch (Exception ex)
             {
