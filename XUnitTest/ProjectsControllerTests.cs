@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 public class ProjectsControllerTests
 {
-    private readonly ApplicationDbContext _mockContext;
+    private readonly ApplicationDbContext _context;
     private readonly ProjectsController _controller;
 
     public ProjectsControllerTests()
@@ -15,25 +15,33 @@ public class ProjectsControllerTests
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
             .Options;
-        _mockContext = new ApplicationDbContext(options);
-        _controller = new ProjectsController(_mockContext);
+
+        _context = new ApplicationDbContext(options);
+        _controller = new ProjectsController(_context);
+
+        // Seed the database with test data
         SeedDatabase();
     }
+
     private void SeedDatabase()
     {
-        var project = new Project { Id = new Guid("3f2504e0-4f89-41d3-9a0c-0305e82c3301") };
-        _mockContext.Projects.Add(project);
-        _mockContext.SaveChanges();
-    }    
+        var project = new Project { Id = Guid.NewGuid(), CustomerId = 1 };
+        _context.Projects.Add(project);
+        _context.SaveChanges();
+    }
 
     [Fact]
     public async Task GetProjectByIdAsync_ReturnsOkResult_WithProject()
     {
+        // Arrange
+        var projectId = Guid.NewGuid();
+        var project = new Project { Id = projectId, CustomerId = 1 };
+        await _context.Projects.AddAsync(project);
+        await _context.SaveChangesAsync();
+        var cancellationToken = new CancellationToken();
 
-        //// Arrange
-        var projectId = new Guid("3f2504e0-4f89-41d3-9a0c-0305e82c3301");
         // Act
-        var result = await _controller.GetProjectByIdAsync(projectId,CancellationToken.None);
+        var result = await _controller.GetProjectByIdAsync(projectId, cancellationToken);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -45,9 +53,11 @@ public class ProjectsControllerTests
     public async Task GetProjectByIdAsync_ReturnsNotFound_WhenProjectNotFound()
     {
         // Arrange
-        var projectId = new Guid("11223344-5566-7788-11NF-BBCCDDEEFF00");
+        var projectId = Guid.NewGuid();
+        var cancellationToken = new CancellationToken();
+
         // Act
-        var result = await _controller.GetProjectByIdAsync(projectId, CancellationToken.None);
+        var result = await _controller.GetProjectByIdAsync(projectId, cancellationToken);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -56,7 +66,8 @@ public class ProjectsControllerTests
     [Fact]
     public async Task AddProjectAsync_ReturnsOkResult_WithProject()
     {
-        var project = new Project { Id = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00") };
+        // Arrange
+        var project = new Project { Id = Guid.NewGuid(), CustomerId = 1 };
 
         // Act
         var result = await _controller.AddProjectAsync(project);
@@ -64,33 +75,39 @@ public class ProjectsControllerTests
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnValue = Assert.IsType<Project>(okResult.Value);
-        Assert.NotNull(returnValue.Id);
-        
-    }    
+        Assert.Equal(project.Id, returnValue.Id);
+    }
+    
 
     [Fact]
-    public async Task UpdateProjectAsync_ReturnsOkResult_WithProject()
+    public async Task UpdateProjectAsync_ReturnsOkResult_WithUpdatedProject()
     {
         // Arrange
-        var project = new Project { Id = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00") };
+        var projectId = Guid.NewGuid();
+        var project = new Project { Id = projectId, CustomerId = 1 };
+        await _context.Projects.AddAsync(project);
+        await _context.SaveChangesAsync();
+
+        var updatedProject = new Project { Id = projectId, CustomerId = 2 };
 
         // Act
-        var result = await _controller.UpdateProjectAsync(new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), project);
+        var result = await _controller.UpdateProjectAsync(projectId, updatedProject);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnValue = Assert.IsType<Project>(okResult.Value);
-        Assert.Equal(new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), returnValue.Id);
+        Assert.Equal(2, returnValue.CustomerId);
     }
 
     [Fact]
     public async Task UpdateProjectAsync_ReturnsNotFound_WhenProjectNotFound()
     {
         // Arrange
-        var project = new Project { Id = new Guid("11223344-5566-7788-11PP-BBCCDDEEFF00") };
+        var projectId = Guid.NewGuid();
+        var project = new Project { Id = projectId, CustomerId = 1 };
 
         // Act
-        var result = await _controller.UpdateProjectAsync(new Guid("11223344-5566-7788-11NF-BBCCDDEEFF00"), project);
+        var result = await _controller.UpdateProjectAsync(projectId, project);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -100,11 +117,12 @@ public class ProjectsControllerTests
     public async Task UpdateProjectAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
-        var project = new Project { Id = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00") };
-        var res= _mockContext.Database.EnsureDeleted(); // Simulate an exception by deleting the database
+        var projectId = Guid.NewGuid();
+        var project = new Project { Id = projectId, CustomerId = 1 };
+        _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
         // Act
-        var result = await _controller.UpdateProjectAsync(new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), project);
+        var result = await _controller.UpdateProjectAsync(projectId, project);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);

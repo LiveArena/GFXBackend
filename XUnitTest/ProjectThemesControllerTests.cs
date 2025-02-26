@@ -29,9 +29,9 @@ public class ProjectThemesControllerTests
 
     private void SeedDatabase()
     {
-        var project = new Project { Id = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00") };
-        var theme1 = new ProjectTheme { Id = new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
-        var theme2 = new ProjectTheme { Id = new Guid("11223344-5566-7788-99P2-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
+        var project = new Project { Id = Guid.NewGuid() };
+        var theme1 = new ProjectTheme { Id = Guid.NewGuid(), ProjectId = project.Id, JSONData = "{}" };
+        var theme2 = new ProjectTheme { Id = Guid.NewGuid(), ProjectId = project.Id, JSONData = "{}" };
         _context.Projects.Add(project);
         _context.ProjectThemes.AddRange(theme1, theme2);
         _context.SaveChanges();
@@ -40,20 +40,24 @@ public class ProjectThemesControllerTests
     [Fact]
     public async Task GetProjectThemeByIdAsync_ReturnsOkResult_WithTheme()
     {
+        // Arrange
+        var themeId = _context.ProjectThemes.First().Id;
+        var cancellationToken = new CancellationToken();
+
         // Act
-        var result = await _controller.GetProjectThemeByIdAsync(new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), CancellationToken.None);
+        var result = await _controller.GetProjectThemeByIdAsync(themeId, cancellationToken);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnValue = Assert.IsType<ProjectTheme>(okResult.Value);
-        Assert.Equal(new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), returnValue.Id);
+        Assert.Equal(themeId, returnValue.Id);
     }
 
     [Fact]
     public async Task GetProjectThemeByIdAsync_ReturnsNotFound_WhenThemeNotFound()
     {
         // Act
-        var result = await _controller.GetProjectThemeByIdAsync(new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), CancellationToken.None);
+        var result = await _controller.GetProjectThemeByIdAsync(Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -62,8 +66,12 @@ public class ProjectThemesControllerTests
     [Fact]
     public async Task GetProjectThemesByProjectIdAsync_ReturnsOkResult_WithThemes()
     {
+        // Arrange
+        var projectId = _context.Projects.First().Id;
+        var cancellationToken = new CancellationToken();
+
         // Act
-        var result = await _controller.GetProjectThemesByProjectIdAsync(new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), CancellationToken.None);
+        var result = await _controller.GetProjectThemesByProjectIdAsync(projectId, cancellationToken);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -75,7 +83,7 @@ public class ProjectThemesControllerTests
     public async Task GetProjectThemesByProjectIdAsync_ReturnsNotFound_WhenThemesNotFound()
     {
         // Act
-        var result = await _controller.GetProjectThemesByProjectIdAsync(new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), CancellationToken.None);
+        var result = await _controller.GetProjectThemesByProjectIdAsync(Guid.NewGuid(), CancellationToken.None);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -85,41 +93,44 @@ public class ProjectThemesControllerTests
     public async Task AddThemeAsync_ReturnsOkResult_WithThemeId()
     {
         // Arrange
-        var theme = new ProjectTheme { Id = new  Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
+        var theme = new ProjectTheme { Id = Guid.NewGuid(), ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
         // Act
         var result = await _controller.AddThemeAsync(theme);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var returnValue = Assert.IsType<int>(okResult.Value);
-        Assert.True(returnValue > 0);
+        var returnValue = Assert.IsType<Guid>(okResult.Value);
+        Assert.Equal(theme.Id, returnValue);
     }
 
     
+
     [Fact]
     public async Task UpdateProjectThemeByIdAsync_ReturnsOkResult_WithTheme()
     {
         // Arrange
-        var theme = new ProjectTheme { Id = new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
+        var themeId = _context.ProjectThemes.First().Id;
+        var theme = new ProjectTheme { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
         // Act
-        var result = await _controller.UpdateProjectThemeByIdAsync(new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), theme);
+        var result = await _controller.UpdateProjectThemeByIdAsync(themeId, theme);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnValue = Assert.IsType<ProjectTheme>(okResult.Value);
-        Assert.Equal(new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), returnValue.Id);
+        Assert.Equal(themeId, returnValue.Id);
     }
 
     [Fact]
     public async Task UpdateProjectThemeByIdAsync_ReturnsNotFound_WhenThemeNotFound()
     {
         // Arrange
-        var theme = new ProjectTheme { Id = new Guid("11223344-5566-7788-99NF-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
+        var themeId = Guid.NewGuid();
+        var theme = new ProjectTheme { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
         // Act
-        var result = await _controller.UpdateProjectThemeByIdAsync(new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), theme);
+        var result = await _controller.UpdateProjectThemeByIdAsync(themeId, theme);
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
@@ -129,11 +140,12 @@ public class ProjectThemesControllerTests
     public async Task UpdateProjectThemeByIdAsync_ReturnsBadRequest_OnException()
     {
         // Arrange
-        var theme = new ProjectTheme { Id = new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), ProjectId = new Guid("11223344-5566-7788-99PP-BBCCDDEEFF00"), JSONData = "{}" };
+        var themeId = _context.ProjectThemes.First().Id;
+        var theme = new ProjectTheme { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
         _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
         // Act
-        var result = await _controller.UpdateProjectThemeByIdAsync(new Guid("11223344-5566-7788-99PT-BBCCDDEEFF00"), theme);
+        var result = await _controller.UpdateProjectThemeByIdAsync(Guid.NewGuid(), theme);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
