@@ -122,7 +122,7 @@ public class ProjectsControllerTests
         _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
         // Act
-        var result = await _controller.UpdateProjectAsync(projectId, project);
+        var result = await _controller.UpdateProjectAsync(Guid.NewGuid(), project);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
