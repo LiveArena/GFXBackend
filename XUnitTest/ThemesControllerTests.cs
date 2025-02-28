@@ -9,19 +9,19 @@ using GraphicsBackend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-public class ProjectThemesControllerTests
+public class ThemesControllerTests
 {
     private readonly ApplicationDbContext _context;
-    private readonly ProjectThemesController _controller;
+    private readonly ThemesController _controller;
 
-    public ProjectThemesControllerTests()
+    public ThemesControllerTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _controller = new ProjectThemesController(_context);
+        _controller = new ThemesController(_context);
 
         // Seed the database with test data
         SeedDatabase();

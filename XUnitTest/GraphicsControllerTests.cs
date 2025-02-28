@@ -6,19 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GraphicsBackend.XUnitTests
 {
-    public class ProjectGraphicsControllerTests
+    public class GraphicsControllerTests
     {
         private readonly ApplicationDbContext _context;
-        private readonly ProjectGraphicsController _controller;
+        private readonly GraphicsController _controller;
 
-        public ProjectGraphicsControllerTests()
+        public GraphicsControllerTests()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .Options;
 
             _context = new ApplicationDbContext(options);
-            _controller = new ProjectGraphicsController(_context);
+            _controller = new GraphicsController(_context);
 
             // Seed the database with test data
             SeedDatabase();

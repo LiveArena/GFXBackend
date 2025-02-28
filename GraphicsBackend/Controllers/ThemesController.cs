@@ -7,10 +7,10 @@ namespace GraphicsBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]    
-    public class ProjectThemesController : ControllerBase
+    public class ThemesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;        
-        public ProjectThemesController(ApplicationDbContext context)
+        public ThemesController(ApplicationDbContext context)
         {
             _context = context;
         }
