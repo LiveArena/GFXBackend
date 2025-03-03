@@ -9,6 +9,7 @@ namespace GraphicsBackend.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public required Guid Id { get; set; }
         public int? CustomerId { get; set; }
+        public string? JSONData { get; set; }
 
 
     }

@@ -104,23 +104,23 @@ builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(x =>
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
 #endregion Redis
-
+builder.Services.AddSingleton<WebSocketService>();
 var app = builder.Build();
 
 app.UseWebSockets();
 
-app.Map("/ws", async (context) =>
-{
-    if (context.WebSockets.IsWebSocketRequest)
-    {        
-        WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
-        await WebSocketHandler.HandleWebSocketAsync(context, webSocket);
-    }
-    else
-    {
-        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-    }
-});
+//app.Map("/ws", async (context) =>
+//{
+//    if (context.WebSockets.IsWebSocketRequest)
+//    {        
+//        WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
+//        await WebSocketHandler.HandleWebSocketAsync(context, webSocket);
+//    }
+//    else
+//    {
+//        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+//    }
+//});
 
 
 

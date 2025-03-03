@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Notifications\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
 
