@@ -26,5 +26,16 @@ namespace GraphicsBackend.Controllers
                 HttpContext.Response.StatusCode = 400;
             }
         }
+        [HttpPost]
+        public async Task SendMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                HttpContext.Response.StatusCode = 400;
+                return;
+            }
+
+            await _socketServerService.NotifyClientsAsync(message);
+        }
     }
 }

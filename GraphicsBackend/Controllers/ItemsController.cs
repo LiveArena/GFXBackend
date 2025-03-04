@@ -226,6 +226,26 @@ namespace GraphicsBackend.Controllers
 
 
         }
+        [HttpDelete("graphics/{id}")]
+        public async Task<IActionResult> RemoveGraphicByIdAsync(Guid id)
+        {
+            try
+            {
+                var graphicToDelete = await _context.ProjectGraphics.FindAsync(id);
+                if (graphicToDelete is null)
+                {
+                    return NotFound($"Graphic not found with id='{id}'");
+                }
+
+                _context.ProjectGraphics.Remove(graphicToDelete);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         #endregion Graphic
 
     }
