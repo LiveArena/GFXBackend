@@ -55,14 +55,16 @@ namespace GraphicsBackend.Controllers
                 }
 
                 var existingProject = await _context.Projects.FindAsync(Id);
-                if (existingProject is not null)
+                if (existingProject is null) 
                 {
-                    existingProject.CustomerId = project.CustomerId;
-                    _context.Projects.Attach(existingProject);
-                    await _context.SaveChangesAsync();
-                    return Ok(existingProject);                    
+                    return NotFound();
                 }
-                return NotFound();
+
+                existingProject.JSONData = project.JSONData;
+                existingProject.CustomerId = project.CustomerId;
+                _context.Projects.Attach(existingProject);
+                await _context.SaveChangesAsync();
+                return Ok(existingProject);
             }
             catch (Exception ex)
             {

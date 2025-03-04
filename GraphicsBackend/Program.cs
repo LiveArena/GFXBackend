@@ -71,7 +71,16 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
+builder.Services
+    .AddCors(options =>
+    {
+        options.AddPolicy("ALLOW_ALL_POLICY", cfg =>
+        {
+            cfg.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+    });
 
 builder.Services.AddAuthorization();
 
@@ -108,6 +117,7 @@ builder.Services.AddSingleton<WebSocketService>();
 var app = builder.Build();
 
 app.UseWebSockets();
+app.UseCors("ALLOW_ALL_POLICY");
 
 //app.Map("/ws", async (context) =>
 //{

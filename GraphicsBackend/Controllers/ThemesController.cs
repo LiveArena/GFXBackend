@@ -38,23 +38,18 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddThemeAsync([FromBody] ProjectTheme Theme)
+        public async Task<IActionResult> AddThemeAsync([FromBody] ProjectTheme theme)
         {
             try
             {
-               
-                await _context.ProjectThemes.AddAsync(Theme);
+                await _context.ProjectThemes.AddAsync(theme);
                 await _context.SaveChangesAsync();
-                return Ok(Theme.Id);
+                return Ok(theme);
             }
             catch (Exception ex)
             {
-
                 return BadRequest(ex.Message);
-
             }
-
-
         }
 
         [HttpPut("{Id}")]
