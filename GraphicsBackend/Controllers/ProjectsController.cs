@@ -1,21 +1,22 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Models;
+using GraphicsBackend.Notifications;
+using GraphicsBackend.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace GraphicsBackend.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]    
-    public class ProjectsController : ControllerBase
+{  
+    public class ProjectsController : WebSocketSupportController
     {
         private readonly ApplicationDbContext _context;
 
-        public ProjectsController(ApplicationDbContext context)
+        protected override SocketMessageType SocketMessageType => SocketMessageType.Project;
+
+        public ProjectsController(ApplicationDbContext context, WebSocketService websocketService)
+            :base(websocketService)
         {
             _context = context;
-
         }
 
         [HttpGet("{id}")]
@@ -26,6 +27,8 @@ namespace GraphicsBackend.Controllers
             {
                 return NotFound();
             }
+
+            BroadcastThroughSocket(ActionTaken.ReadSingle, project);
             return Ok(project);
         }
         [HttpPost]
@@ -35,6 +38,8 @@ namespace GraphicsBackend.Controllers
             {                
                 await _context.Projects.AddAsync(project);
                 await _context.SaveChangesAsync();
+
+                BroadcastThroughSocket(ActionTaken.Created, project);
                 return Ok(project);
 
             }
@@ -64,6 +69,8 @@ namespace GraphicsBackend.Controllers
                 existingProject.CustomerId = project.CustomerId;
                 _context.Projects.Attach(existingProject);
                 await _context.SaveChangesAsync();
+
+                BroadcastThroughSocket(ActionTaken.Updated, existingProject);
                 return Ok(existingProject);
             }
             catch (Exception ex)

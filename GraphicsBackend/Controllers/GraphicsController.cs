@@ -1,16 +1,20 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Models;
+using GraphicsBackend.Notifications;
+using GraphicsBackend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraphicsBackend.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]   
-    public class GraphicsController : ControllerBase
+{  
+    public class GraphicsController : WebSocketSupportController
     {
         private readonly ApplicationDbContext _context;
-        public GraphicsController(ApplicationDbContext context)
+
+        protected override SocketMessageType SocketMessageType => SocketMessageType.Graphic;
+
+        public GraphicsController(ApplicationDbContext context, WebSocketService webSocketService)
+            :base(webSocketService)
         {
             _context = context;
         }
@@ -22,6 +26,8 @@ namespace GraphicsBackend.Controllers
             var graphic = await _context.ProjectGraphics.FindAsync(id,cancellationToken);
             if (graphic is not null)
             {
+                BroadcastThroughSocket(ActionTaken.ReadSingle, graphic);
+
                 return Ok(graphic);
             }
             return NoContent();
@@ -34,6 +40,8 @@ namespace GraphicsBackend.Controllers
             var graphics = await _context.ProjectGraphics.Where(g => g.ProjectId == projectId).ToListAsync(cancellationToken);
             if (graphics.Count != 0)
             {
+                BroadcastThroughSocket(ActionTaken.ReadList, graphics);
+
                 return Ok(graphics);
             }
             return NoContent();
@@ -46,7 +54,10 @@ namespace GraphicsBackend.Controllers
             try
             {                
                 await _context.ProjectGraphics.AddAsync(graphic);
-                await _context.SaveChangesAsync();                
+                await _context.SaveChangesAsync();
+
+                BroadcastThroughSocket(ActionTaken.Created, graphic);
+
                 return Ok(graphic);
             }
             catch (Exception ex)
@@ -68,15 +79,19 @@ namespace GraphicsBackend.Controllers
                 }
 
                 var existingGraphic = await _context.ProjectGraphics.FindAsync(Id);
-                if (existingGraphic is not null)
+                if (existingGraphic is null) 
                 {
-                    existingGraphic.ProjectId = graphic.ProjectId;
-                    existingGraphic.JSONData = graphic.JSONData;
-                    _context.ProjectGraphics.Attach(existingGraphic);
-                    await _context.SaveChangesAsync();
-                    return Ok(existingGraphic);                   
+                    return NotFound();
                 }
-                return NotFound();
+
+                existingGraphic.ProjectId = graphic.ProjectId;
+                existingGraphic.JSONData = graphic.JSONData;
+                _context.ProjectGraphics.Attach(existingGraphic);
+                await _context.SaveChangesAsync();
+
+                BroadcastThroughSocket(ActionTaken.Updated, graphic);
+                
+                return Ok(existingGraphic);                   
             }
             catch (Exception ex)
             {
@@ -98,6 +113,9 @@ namespace GraphicsBackend.Controllers
 
                 _context.ProjectGraphics.Remove(graphicToDelete);
                 await _context.SaveChangesAsync();
+
+                BroadcastThroughSocket(ActionTaken.Deleted, id);
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -105,7 +123,6 @@ namespace GraphicsBackend.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
 
     }
 

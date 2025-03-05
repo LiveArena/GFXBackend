@@ -1,7 +1,9 @@
 ﻿using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text;
+using GraphicsBackend.Notifications;
 using Microsoft.AspNetCore.DataProtection;
+using Newtonsoft.Json;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace GraphicsBackend.Services
@@ -35,6 +37,10 @@ namespace GraphicsBackend.Services
             await Task.WhenAll(tasks);
         }
 
-
+        public async Task BroadcastAsync(SocketMessage message)
+        {
+            var serializedMessage = JsonConvert.SerializeObject(message);
+            await NotifyClientsAsync(serializedMessage);
+        }
     }
 }
