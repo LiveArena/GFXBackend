@@ -9,9 +9,9 @@ namespace GraphicsBackend.Controllers;
 [ApiController]
 public abstract class WebSocketSupportController : ControllerBase
 {
-    private readonly WebSocketService _webSocketService;
+    private readonly IWebSocketService _webSocketService;
 
-    protected WebSocketSupportController(WebSocketService webSocketService)
+    protected WebSocketSupportController(IWebSocketService webSocketService)
     {
         _webSocketService = webSocketService;
     }

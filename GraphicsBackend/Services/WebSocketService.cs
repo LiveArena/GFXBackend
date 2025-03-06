@@ -8,10 +8,12 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace GraphicsBackend.Services
 {
-    public  class WebSocketService
+
+
+    public class WebSocketService : IWebSocketService
     {
-        private static readonly List< WebSocket> _connections = new();
-        public  async Task AddSocketAsync(WebSocket webSocket)
+        private static readonly List<WebSocket> _connections = new();
+        public async Task AddSocketAsync(WebSocket webSocket)
         {
             _connections.Add(webSocket);
             var buffer = new byte[1024 * 4];
@@ -26,7 +28,7 @@ namespace GraphicsBackend.Services
             }
 
         }
-        public  async Task NotifyClientsAsync(string message)
+        public async Task NotifyClientsAsync(string message)
         {
             var tasks = _connections
             .Where(s => s.State == WebSocketState.Open)

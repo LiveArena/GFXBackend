@@ -13,7 +13,7 @@ namespace GraphicsBackend.Controllers
 
         protected override SocketMessageType SocketMessageType => SocketMessageType.Project;
 
-        public ProjectsController(ApplicationDbContext context, WebSocketService websocketService)
+        public ProjectsController(ApplicationDbContext context, IWebSocketService websocketService)
             :base(websocketService)
         {
             _context = context;

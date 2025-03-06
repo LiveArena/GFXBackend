@@ -1,6 +1,7 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Controllers;
 using GraphicsBackend.Models;
+using GraphicsBackend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ public class ProjectsControllerTests
 {
     private readonly ApplicationDbContext _context;
     private readonly ProjectsController _controller;
-
+    private readonly IWebSocketService _webSocketService;
     public ProjectsControllerTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -17,7 +18,8 @@ public class ProjectsControllerTests
             .Options;
 
         _context = new ApplicationDbContext(options);
-        _controller = new ProjectsController(_context);
+        _webSocketService=new WebSocketService();
+        _controller = new ProjectsController(_context,_webSocketService);
 
         // Seed the database with test data
         SeedDatabase();

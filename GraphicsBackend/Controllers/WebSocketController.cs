@@ -8,8 +8,8 @@ namespace GraphicsBackend.Controllers
     [ApiController]
     public class WebSocketController : ControllerBase
     {
-        private readonly WebSocketService _socketServerService;
-        public WebSocketController(WebSocketService socketServerService)
+        private readonly IWebSocketService _socketServerService;
+        public WebSocketController(IWebSocketService socketServerService)
         {
            _socketServerService= socketServerService;    
         }

@@ -1,6 +1,7 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Controllers;
 using GraphicsBackend.Models;
+using GraphicsBackend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ namespace GraphicsBackend.XUnitTests
     {
         private readonly ApplicationDbContext _context;
         private readonly GraphicsController _controller;
+        private readonly IWebSocketService _webSocketService;
 
         public GraphicsControllerTests()
         {
@@ -18,7 +20,8 @@ namespace GraphicsBackend.XUnitTests
                 .Options;
 
             _context = new ApplicationDbContext(options);
-            _controller = new GraphicsController(_context);
+            _webSocketService=new WebSocketService();
+            _controller = new GraphicsController(_context,_webSocketService);
 
             // Seed the database with test data
             SeedDatabase();

@@ -13,7 +13,7 @@ namespace GraphicsBackend.Controllers
 
         protected override SocketMessageType SocketMessageType => SocketMessageType.Theme;
 
-        public ThemesController(ApplicationDbContext context, WebSocketService webSocketService)
+        public ThemesController(ApplicationDbContext context, IWebSocketService webSocketService)
             : base(webSocketService)
         {
             _context = context;

@@ -13,7 +13,7 @@ namespace GraphicsBackend.Controllers
 
         protected override SocketMessageType SocketMessageType => SocketMessageType.Graphic;
 
-        public GraphicsController(ApplicationDbContext context, WebSocketService webSocketService)
+        public GraphicsController(ApplicationDbContext context, IWebSocketService webSocketService)
             :base(webSocketService)
         {
             _context = context;

@@ -113,7 +113,7 @@ builder.Services.AddSingleton<IRedisCacheService, RedisCacheService>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(x =>
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
 #endregion Redis
-builder.Services.AddSingleton<WebSocketService>();
+builder.Services.AddSingleton<IWebSocketService, WebSocketService>();
 var app = builder.Build();
 
 app.UseWebSockets();
