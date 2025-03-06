@@ -1,5 +1,6 @@
 using System.Net.WebSockets;
 using System.Text;
+using GraphicsBackend;
 using GraphicsBackend.Configurations;
 using GraphicsBackend.Contexts;
 using GraphicsBackend.Services;
@@ -146,6 +147,8 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
     });
+
+    app.MigrateDatabase();
 }
 
 
