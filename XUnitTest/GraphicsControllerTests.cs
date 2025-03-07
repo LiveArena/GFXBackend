@@ -1,5 +1,6 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Controllers;
+using GraphicsBackend.DTOs;
 using GraphicsBackend.Models;
 using GraphicsBackend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -93,7 +94,7 @@ namespace GraphicsBackend.XUnitTests
         public async Task AddProjectGraphicAsync_ReturnsOkResult_WithGraphic()
         {
             // Arrange
-            var graphic = new ProjectGraphic { Id = Guid.NewGuid(), ProjectId = _context.Projects.First().Id, JSONData = "{}" };
+            var graphic = new GraphicDTO { Id = Guid.NewGuid(), ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
             // Act
             var result = await _controller.AddProjectGraphicAsync(graphic);
@@ -110,7 +111,7 @@ namespace GraphicsBackend.XUnitTests
         {
             // Arrange
             var graphicId = _context.ProjectGraphics.First().Id;
-            var graphic = new ProjectGraphic { Id = graphicId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
+            var graphic = new GraphicDTO { Id = graphicId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
             // Act
             var result = await _controller.UpdateProjectGraphicByIdAsync(graphicId, graphic);
@@ -126,7 +127,7 @@ namespace GraphicsBackend.XUnitTests
         {
             // Arrange
             var graphicId = Guid.NewGuid();
-            var graphic = new ProjectGraphic { Id = graphicId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
+            var graphic = new GraphicDTO { Id = graphicId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
             // Act
             var result = await _controller.UpdateProjectGraphicByIdAsync(graphicId, graphic);
@@ -140,7 +141,7 @@ namespace GraphicsBackend.XUnitTests
         {
             // Arrange
             var graphicId = _context.ProjectGraphics.First().Id;
-            var graphic = new ProjectGraphic { Id = graphicId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
+            var graphic = new GraphicDTO { Id = graphicId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
             _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
             // Act

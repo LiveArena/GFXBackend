@@ -1,5 +1,6 @@
 ﻿using GraphicsBackend.Contexts;
 using GraphicsBackend.Controllers;
+using GraphicsBackend.DTOs;
 using GraphicsBackend.Models;
 using GraphicsBackend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -69,7 +70,7 @@ public class ProjectsControllerTests
     public async Task AddProjectAsync_ReturnsOkResult_WithProject()
     {
         // Arrange
-        var project = new Project { Id = Guid.NewGuid(), CustomerId = 1 };
+        var project = new ProjectDTO { Id = Guid.NewGuid(), CustomerId = 1 };
 
         // Act
         var result = await _controller.AddProjectAsync(project);
@@ -90,7 +91,7 @@ public class ProjectsControllerTests
         await _context.Projects.AddAsync(project);
         await _context.SaveChangesAsync();
 
-        var updatedProject = new Project { Id = projectId, CustomerId = 2 };
+        var updatedProject = new ProjectDTO { Id = projectId, CustomerId = 2 };
 
         // Act
         var result = await _controller.UpdateProjectAsync(projectId, updatedProject);
@@ -106,7 +107,7 @@ public class ProjectsControllerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Project { Id = projectId, CustomerId = 1 };
+        var project = new ProjectDTO { Id = projectId, CustomerId = 1 };
 
         // Act
         var result = await _controller.UpdateProjectAsync(projectId, project);
@@ -120,7 +121,7 @@ public class ProjectsControllerTests
     {
         // Arrange
         var projectId = Guid.NewGuid();
-        var project = new Project { Id = projectId, CustomerId = 1 };
+        var project = new ProjectDTO { Id = projectId, CustomerId = 1 };
         _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
         // Act

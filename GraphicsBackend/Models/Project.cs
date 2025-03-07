@@ -11,6 +11,5 @@ namespace GraphicsBackend.Models
         public int? CustomerId { get; set; }
         public string? JSONData { get; set; }
 
-
     }
 }

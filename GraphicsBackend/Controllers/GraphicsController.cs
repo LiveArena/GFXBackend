@@ -1,4 +1,5 @@
 ﻿using GraphicsBackend.Contexts;
+using GraphicsBackend.DTOs;
 using GraphicsBackend.Models;
 using GraphicsBackend.Notifications;
 using GraphicsBackend.Services;
@@ -49,16 +50,17 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProjectGraphicAsync([FromBody] ProjectGraphic graphic)
+        public async Task<IActionResult> AddProjectGraphicAsync([FromBody] GraphicDTO graphic)
         {
             try
-            {                
-                await _context.ProjectGraphics.AddAsync(graphic);
+            {
+                var response = graphic.Create();
+                await _context.ProjectGraphics.AddAsync(response);
                 await _context.SaveChangesAsync();
 
-                BroadcastThroughSocket(ActionTaken.Created, graphic);
+                BroadcastThroughSocket(ActionTaken.Created, response);
 
-                return Ok(graphic);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -69,7 +71,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateProjectGraphicByIdAsync(Guid Id, [FromBody] ProjectGraphic graphic)
+        public async Task<IActionResult> UpdateProjectGraphicByIdAsync(Guid Id, [FromBody] GraphicDTO graphic)
         {
             try
             {

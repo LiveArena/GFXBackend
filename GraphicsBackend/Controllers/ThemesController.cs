@@ -1,4 +1,5 @@
 ﻿using GraphicsBackend.Contexts;
+using GraphicsBackend.DTOs;
 using GraphicsBackend.Models;
 using GraphicsBackend.Notifications;
 using GraphicsBackend.Services;
@@ -46,15 +47,16 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddThemeAsync([FromBody] ProjectTheme theme)
+        public async Task<IActionResult> AddThemeAsync([FromBody] ThemeDTO theme)
         {
             try
             {
-                await _context.ProjectThemes.AddAsync(theme);
+                var response = theme.Create();
+                await _context.ProjectThemes.AddAsync(response);
                 await _context.SaveChangesAsync();
 
-                BroadcastThroughSocket(ActionTaken.Created, theme);
-                return Ok(theme);
+                BroadcastThroughSocket(ActionTaken.Created, response);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -63,7 +65,7 @@ namespace GraphicsBackend.Controllers
         }
 
         [HttpPut("{Id}")]
-        public async Task<IActionResult> UpdateProjectThemeByIdAsync(Guid Id, [FromBody] ProjectTheme theme)
+        public async Task<IActionResult> UpdateProjectThemeByIdAsync(Guid Id, [FromBody] ThemeDTO theme)
         {
             try
             {

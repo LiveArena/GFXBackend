@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using GraphicsBackend.Contexts;
 using GraphicsBackend.Controllers;
+using GraphicsBackend.DTOs;
 using GraphicsBackend.Models;
 using GraphicsBackend.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -96,7 +97,7 @@ public class ThemesControllerTests
     public async Task AddThemeAsync_ReturnsOkResult_WithThemeId()
     {
         // Arrange
-        var theme = new ProjectTheme { Id = Guid.NewGuid(), ProjectId = _context.Projects.First().Id, JSONData = "{}" };
+        var theme = new ThemeDTO { Id = Guid.NewGuid(), ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
         // Act
         var result = await _controller.AddThemeAsync(theme);
@@ -114,7 +115,7 @@ public class ThemesControllerTests
     {
         // Arrange
         var themeId = _context.ProjectThemes.First().Id;
-        var theme = new ProjectTheme { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
+        var theme = new ThemeDTO { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
         // Act
         var result = await _controller.UpdateProjectThemeByIdAsync(themeId, theme);
@@ -130,7 +131,7 @@ public class ThemesControllerTests
     {
         // Arrange
         var themeId = Guid.NewGuid();
-        var theme = new ProjectTheme { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
+        var theme = new ThemeDTO { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
 
         // Act
         var result = await _controller.UpdateProjectThemeByIdAsync(themeId, theme);
@@ -144,7 +145,7 @@ public class ThemesControllerTests
     {
         // Arrange
         var themeId = _context.ProjectThemes.First().Id;
-        var theme = new ProjectTheme { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
+        var theme = new ThemeDTO { Id = themeId, ProjectId = _context.Projects.First().Id, JSONData = "{}" };
         _context.Database.EnsureDeleted(); // Simulate an exception by deleting the database
 
         // Act
