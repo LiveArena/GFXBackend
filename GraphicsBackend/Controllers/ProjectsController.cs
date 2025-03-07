@@ -38,7 +38,7 @@ namespace GraphicsBackend.Controllers
             try
             {
                 var response = projectDto.Create();
-                ////await _context.Projects.AddAsync(response);
+                await _context.Projects.AddAsync(response);
                 await _context.SaveChangesAsync();
 
                 BroadcastThroughSocket(ActionTaken.Created, response);
