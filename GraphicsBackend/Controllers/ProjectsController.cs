@@ -3,11 +3,13 @@ using GraphicsBackend.DTOs;
 using GraphicsBackend.Models;
 using GraphicsBackend.Notifications;
 using GraphicsBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace GraphicsBackend.Controllers
-{  
+{
+    [Authorize]    
     public class ProjectsController : WebSocketSupportController
     {
         private readonly ApplicationDbContext _context;
@@ -58,7 +60,7 @@ namespace GraphicsBackend.Controllers
             {
                 if (project == null || Id != project.Id)
                 {
-                    return BadRequest("Invalid theme data.");
+                    return BadRequest("Invalid project data.");
                 }
 
                 var existingProject = await _context.Projects.FindAsync(Id);

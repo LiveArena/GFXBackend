@@ -22,9 +22,8 @@ namespace GraphicsBackend.Configurations
             var expirationInMinutes = jwtSettings.GetValue<int>("ExpirationInMinutes");
 
             var claims = new[]
-            {
-            new Claim(JwtRegisteredClaimNames.Sub, "admin"),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())            
+            {            
+            new Claim("scp", "access_as_user")            
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));

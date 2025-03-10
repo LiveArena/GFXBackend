@@ -3,11 +3,13 @@ using GraphicsBackend.DTOs;
 using GraphicsBackend.Models;
 using GraphicsBackend.Notifications;
 using GraphicsBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraphicsBackend.Controllers
-{  
+{
+    [Authorize]
     public class GraphicsController : WebSocketSupportController
     {
         private readonly ApplicationDbContext _context;
